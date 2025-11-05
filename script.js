@@ -31,6 +31,7 @@ async function saveEmployeeData() {
         attendanceAllowance: parseFloat(document.getElementById('attendanceAllowance').value) || 0,
         jobAllowance: parseFloat(document.getElementById('jobAllowance').value) || 0,
         rentAllowance: parseFloat(document.getElementById('rentAllowance').value) || 0,
+        advanceAllowance: parseFloat(document.getElementById('advanceAllowance').value) || 0,
         laborInsurance: parseFloat(document.getElementById('laborInsurance').value) || 0,
         healthInsurance: parseFloat(document.getElementById('healthInsurance').value) || 0,
         supplementaryHealthInsurance: parseFloat(document.getElementById('supplementaryHealthInsurance').value) || 0,
@@ -136,6 +137,7 @@ function calculateLocalSalary(data) {
     const attendanceAllowance = parseFloat(document.getElementById('attendanceAllowance').value) || 0;
     const jobAllowance = parseFloat(document.getElementById('jobAllowance').value) || 0;
     const rentAllowance = parseFloat(document.getElementById('rentAllowance').value) || 0;
+    const advanceAllowance = parseFloat(document.getElementById('advanceAllowance').value) || 0;
     const laborInsurance = parseFloat(document.getElementById('laborInsurance').value) || 0;
     const healthInsurance = parseFloat(document.getElementById('healthInsurance').value) || 0;
     const supplementaryHealthInsurance = parseFloat(document.getElementById('supplementaryHealthInsurance').value) || 0;
@@ -150,7 +152,7 @@ function calculateLocalSalary(data) {
     const mealTotal = mealAllowance * data.workDays;
     
     // 計算總津貼
-    const totalAllowance = mealTotal + attendanceAllowance + jobAllowance + rentAllowance;
+    const totalAllowance = mealTotal + attendanceAllowance + jobAllowance + rentAllowance + advanceAllowance;
     
     // 計算總扣款
     const totalDeduction = 
@@ -205,6 +207,7 @@ function clearEmployeeForm() {
     document.getElementById('attendanceAllowance').value = '0';
     document.getElementById('jobAllowance').value = '0';
     document.getElementById('rentAllowance').value = '0';
+    document.getElementById('advanceAllowance').value = '0';
     document.getElementById('laborInsurance').value = '0';
     document.getElementById('healthInsurance').value = '0';
     document.getElementById('supplementaryHealthInsurance').value = '0';
