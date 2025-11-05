@@ -21,6 +21,7 @@ async function saveEmployeeData() {
         employeeName: document.getElementById('employeeName').value,
         bloodType: document.getElementById('bloodType').value,
         phone: document.getElementById('phone').value,
+        email: document.getElementById('email').value,
         birthDate: document.getElementById('birthDate').value,
         emergencyContact: document.getElementById('emergencyContact').value,
         emergencyPhone: document.getElementById('emergencyPhone').value,
@@ -197,6 +198,7 @@ function clearEmployeeForm() {
     document.getElementById('employeeName').value = '';
     document.getElementById('bloodType').value = '';
     document.getElementById('phone').value = '';
+    document.getElementById('email').value = '';
     document.getElementById('birthDate').value = '';
     document.getElementById('emergencyContact').value = '';
     document.getElementById('emergencyPhone').value = '';
