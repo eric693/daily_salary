@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日薪員工管理系統</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 日薪員工設定頁面 -->
+        <div id="settingPage" class="page active">
+            <h1 class="page-title">📋 日薪員工設定</h1>
+            <p class="page-subtitle">設定日薪員工的基本資料、薪資資訊與扣款項目</p>
+
+            <!-- 基本資訊 -->
+            <section class="section">
+                <h2 class="section-title">📁 基本資訊</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="employeeId">員工ID <span class="required">*</span></label>
+                        <input type="text" id="employeeId" placeholder="請輸入員工ID">
+                    </div>
+                    <div class="form-group">
+                        <label for="employeeName">員工姓名 <span class="required">*</span></label>
+                        <input type="text" id="employeeName" placeholder="請輸入姓名">
+                    </div>
+                    <div class="form-group">
+                        <label for="bloodType">血型</label>
+                        <select id="bloodType">
+                            <option value="">請選擇</option>
+                            <option value="A">A型</option>
+                            <option value="B">B型</option>
+                            <option value="O">O型</option>
+                            <option value="AB">AB型</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">手機</label>
+                        <input type="tel" id="phone" placeholder="0912345678">
+                    </div>
+                    <div class="form-group">
+                        <label for="birthDate">出生年月日</label>
+                        <input type="date" id="birthDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="emergencyContact">緊急聯絡人</label>
+                        <input type="text" id="emergencyContact" placeholder="請輸入緊急聯絡人">
+                    </div>
+                    <div class="form-group">
+                        <label for="emergencyPhone">緊急聯絡人電話</label>
+                        <input type="tel" id="emergencyPhone" placeholder="0987654321">
+                    </div>
+                    <div class="form-group">
+                        <label for="address">通訊地址</label>
+                        <input type="text" id="address" placeholder="請輸入通訊地址">
+                    </div>
+                </div>
+            </section>
+
+            <!-- 薪資設定 -->
+            <section class="section">
+                <h2 class="section-title">💰 薪資設定</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="dailyWage">日薪 <span class="required">*</span></label>
+                        <input type="number" id="dailyWage" value="1500">
+                        <small>基本日薪資</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="overtimeWage">加班時薪 <span class="required">*</span></label>
+                        <input type="number" id="overtimeWage" value="200">
+                        <small>加班時的時薪</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="mealAllowance">伙食津貼（天）</label>
+                        <input type="number" id="mealAllowance" value="0">
+                        <small>每天的伙食津貼</small>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 加項津貼 -->
+            <section class="section">
+                <h2 class="section-title">➕ 加項津貼</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="attendanceAllowance">開車津貼</label>
+                        <input type="number" id="attendanceAllowance" value="0">
+                        <small>每月固定開車津貼</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="jobAllowance">職務津貼</label>
+                        <input type="number" id="jobAllowance" value="0">
+                        <small>每月固定職務津貼</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="rentAllowance">租屋津貼</label>
+                        <input type="number" id="rentAllowance" value="0">
+                        <small>每月固定租屋津貼</small>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 減項扣款 -->
+            <section class="section">
+                <h2 class="section-title">➖ 減項扣款</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="laborInsurance">勞保費</label>
+                        <input type="number" id="laborInsurance" value="0">
+                        <small>每月固定勞保費</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="healthInsurance">健保費</label>
+                        <input type="number" id="healthInsurance" value="0">
+                        <small>每月固定健保費</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="supplementaryHealthInsurance">普通健保費</label>
+                        <input type="number" id="supplementaryHealthInsurance" value="0">
+                        <small>普通健保費用</small>
+                    </div>
+                </div>
+                <div class="info-box">
+                    <span class="info-icon">💡</span>
+                    <span>其他扣款項目（請假、預支、代辦6小時扣款、其他代扣、罰單均分）將在計算薪資手動輸入</span>
+                </div>
+            </section>
+
+            <!-- 銀行資訊 -->
+            <section class="section">
+                <h2 class="section-title">🏦 銀行資訊</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="bankCode">銀行代碼</label>
+                        <select id="bankCode">
+                            <option value="">-- 請選擇銀行 --</option>
+                            <option value="004">台灣銀行</option>
+                            <option value="005">土地銀行</option>
+                            <option value="006">合作金庫</option>
+                            <option value="007">第一銀行</option>
+                            <option value="008">華南銀行</option>
+                            <option value="009">彰化銀行</option>
+                            <option value="011">上海商銀</option>
+                            <option value="012">台北富邦</option>
+                            <option value="013">國泰世華</option>
+                            <option value="017">兆豐銀行</option>
+                            <option value="050">台灣企銀</option>
+                            <option value="052">渣打銀行</option>
+                            <option value="053">台中商銀</option>
+                            <option value="054">京城銀行</option>
+                            <option value="101">瑞興銀行</option>
+                            <option value="102">華泰銀行</option>
+                            <option value="103">新光銀行</option>
+                            <option value="108">陽信銀行</option>
+                            <option value="147">三信商銀</option>
+                            <option value="700">中華郵政</option>
+                            <option value="806">元大銀行</option>
+                            <option value="807">永豐銀行</option>
+                            <option value="808">玉山銀行</option>
+                            <option value="809">凱基銀行</option>
+                            <option value="812">台新銀行</option>
+                            <option value="822">中國信託</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="bankAccount">銀行帳號</label>
+                        <input type="text" id="bankAccount" placeholder="請輸入銀行帳號">
+                    </div>
+                </div>
+            </section>
+
+            <!-- 備註 -->
+            <section class="section">
+                <h2 class="section-title">📝 備註</h2>
+                <div class="form-group full-width">
+                    <textarea id="notes" rows="4" placeholder="選填，可記錄特殊說明事項"></textarea>
+                </div>
+            </section>
+
+            <button class="btn-primary" onclick="saveEmployeeData()">💾 儲存日薪員工資料</button>
+            <button class="btn-secondary" onclick="goToCalculation()">下一步：計算日薪</button>
+        </div>
+
+        <!-- 日薪計算頁面 -->
+        <div id="calculationPage" class="page">
+            <h1 class="page-title">📊 日薪計算</h1>
+            <p class="page-subtitle">自動計算員工日薪資，包含加班費、津貼、扣款項目</p>
+
+            <section class="section">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="calcEmployeeId">員工ID <span class="required">*</span></label>
+                        <input type="text" id="calcEmployeeId" placeholder="請輸入員工ID">
+                    </div>
+                    <div class="form-group">
+                        <label for="calcMonth">計算年月 <span class="required">*</span></label>
+                        <input type="month" id="calcMonth">
+                    </div>
+                    <div class="form-group">
+                        <label for="workDays">上班天數 <span class="required">*</span></label>
+                        <input type="number" id="workDays" value="20">
+                        <small>本月實際上班天數</small>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="overtimeHours">加班時數</label>
+                        <input type="number" id="overtimeHours" value="0" step="0.5">
+                        <small>本月總加班時數</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="leaveDeduction">請假扣款</label>
+                        <input type="number" id="leaveDeduction" value="0">
+                        <small>請假造成的扣款金額</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="advancePayment">預支金額</label>
+                        <input type="number" id="advancePayment" value="0">
+                        <small>本月預支薪資</small>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="proxy6hrDeduction">代辦6小時扣款</label>
+                        <input type="number" id="proxy6hrDeduction" value="0">
+                        <small>代辦事項扣款</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="otherDeduction">其他代扣</label>
+                        <input type="number" id="otherDeduction" value="0">
+                        <small>其他扣款項目</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="fineShare">罰單均分</label>
+                        <input type="number" id="fineShare" value="0">
+                        <small>罰單分攤金額</small>
+                    </div>
+                </div>
+            </section>
+
+            <button class="btn-primary" onclick="calculateSalary()">🧮 開始計算日薪</button>
+            <button class="btn-secondary" onclick="goToSetting()">返回員工設定</button>
+
+            <!-- 計算結果 -->
+            <div id="resultSection" class="section" style="display: none;">
+                <h2 class="section-title">💵 計算結果</h2>
+                <div class="result-box">
+                    <div class="result-item">
+                        <span class="result-label">基本日薪總額：</span>
+                        <span class="result-value" id="resultBasicSalary">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">加班費：</span>
+                        <span class="result-value" id="resultOvertime">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">津貼總額：</span>
+                        <span class="result-value" id="resultAllowance">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">扣款總額：</span>
+                        <span class="result-value negative" id="resultDeduction">0</span>
+                    </div>
+                    <div class="result-item total">
+                        <span class="result-label">實發薪資：</span>
+                        <span class="result-value" id="resultNetSalary">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
