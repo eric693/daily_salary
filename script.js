@@ -1,7 +1,6 @@
 // Google Apps Script Web App URL - 請替換成您部署後的 URL
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzLOVQK5O0-HUv916FsBw-NRDQ50YyEbnQSNDnL8IpyGVi1vDHfSaDd8JW9HOA0_RNw/exec';
 
-
 // 全域變數：儲存當前選擇的員工資料
 let currentEmployeeData = null;
 
@@ -63,14 +62,24 @@ async function loadEmployeeData() {
     try {
         showMessage('正在載入員工資料...', 'info');
         
-        const response = await fetch(`${SCRIPT_URL}?action=getEmployee&employeeId=${encodeURIComponent(employeeId)}`, {
+        console.log('正在載入員工ID:', employeeId);
+        
+        const url = `${SCRIPT_URL}?action=getEmployee&employeeId=${encodeURIComponent(employeeId)}`;
+        console.log('請求URL:', url);
+        
+        const response = await fetch(url, {
             method: 'GET',
         });
         
+        console.log('回應狀態:', response.status);
+        
         const data = await response.json();
+        console.log('回應資料:', data);
         
         if (data.status === 'success' && data.employee) {
             currentEmployeeData = data.employee;
+            
+            console.log('載入成功，員工資料:', currentEmployeeData);
             
             // 顯示員工姓名
             document.getElementById('calcEmployeeName').value = data.employee.employeeName;
@@ -78,16 +87,16 @@ async function loadEmployeeData() {
             // 顯示員工薪資資訊
             const infoHtml = `
                 <div style="margin-top: 10px; line-height: 1.8;">
-                    薪資: NT$ ${data.employee.dailyWage.toLocaleString()} | 
-                    加班時薪: NT$ ${data.employee.overtimeWage.toLocaleString()} | 
-                    伙食津貼: NT$ ${data.employee.mealAllowance.toLocaleString()}/天<br>
-                    開車津貼: NT$ ${data.employee.attendanceAllowance.toLocaleString()} | 
-                    職務津貼: NT$ ${data.employee.jobAllowance.toLocaleString()} | 
-                    租屋津貼: NT$ ${data.employee.rentAllowance.toLocaleString()} | 
-                    代付款: NT$ ${data.employee.advanceAllowance.toLocaleString()}<br>
-                    勞保費: NT$ ${data.employee.laborInsurance.toLocaleString()} | 
-                    健保費: NT$ ${data.employee.healthInsurance.toLocaleString()} | 
-                    眷屬健保: NT$ ${data.employee.supplementaryHealthInsurance.toLocaleString()}
+                    薪資: NT$ ${Number(data.employee.dailyWage).toLocaleString()} | 
+                    加班時薪: NT$ ${Number(data.employee.overtimeWage).toLocaleString()} | 
+                    伙食津貼: NT$ ${Number(data.employee.mealAllowance).toLocaleString()}/天<br>
+                    開車津貼: NT$ ${Number(data.employee.attendanceAllowance).toLocaleString()} | 
+                    職務津貼: NT$ ${Number(data.employee.jobAllowance).toLocaleString()} | 
+                    租屋津貼: NT$ ${Number(data.employee.rentAllowance).toLocaleString()} | 
+                    代付款: NT$ ${Number(data.employee.advanceAllowance).toLocaleString()}<br>
+                    勞保費: NT$ ${Number(data.employee.laborInsurance).toLocaleString()} | 
+                    健保費: NT$ ${Number(data.employee.healthInsurance).toLocaleString()} | 
+                    眷屬健保: NT$ ${Number(data.employee.supplementaryHealthInsurance).toLocaleString()}
                 </div>
             `;
             document.getElementById('employeeInfo').innerHTML = infoHtml;
@@ -97,14 +106,17 @@ async function loadEmployeeData() {
             const infoMessages = document.querySelectorAll('.info-message');
             infoMessages.forEach(msg => msg.remove());
             
+            showMessage('✅ 員工資料載入成功', 'success');
+            
         } else {
-            showMessage('❌ 找不到該員工資料', 'error');
+            console.error('載入失敗:', data);
+            showMessage(`❌ ${data.message || '找不到該員工資料'}`, 'error');
             currentEmployeeData = null;
         }
         
     } catch (error) {
         console.error('載入員工資料失敗:', error);
-        showMessage('❌ 載入員工資料失敗，請檢查網路連線', 'error');
+        showMessage('❌ 載入員工資料失敗，請檢查網路連線或 Google Apps Script 設定', 'error');
         currentEmployeeData = null;
     }
 }
