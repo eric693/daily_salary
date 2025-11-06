@@ -266,7 +266,10 @@
             <!-- 計算結果 -->
             <div id="resultSection" class="section" style="display: none;">
                 <h2 class="section-title">💵 計算結果</h2>
+                
+                <!-- 基本薪資 -->
                 <div class="result-box">
+                    <h3 class="result-category">基本薪資</h3>
                     <div class="result-item">
                         <span class="result-label">基本薪資總額：</span>
                         <span class="result-value" id="resultBasicSalary">0</span>
@@ -275,14 +278,80 @@
                         <span class="result-label">加班費：</span>
                         <span class="result-value" id="resultOvertime">0</span>
                     </div>
+                </div>
+
+                <!-- 加項津貼明細 -->
+                <div class="result-box">
+                    <h3 class="result-category">➕ 加項津貼明細</h3>
                     <div class="result-item">
+                        <span class="result-label">伙食津貼：</span>
+                        <span class="result-value" id="resultMealAllowance">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">開車津貼：</span>
+                        <span class="result-value" id="resultAttendanceAllowance">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">職務津貼：</span>
+                        <span class="result-value" id="resultJobAllowance">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">租屋津貼：</span>
+                        <span class="result-value" id="resultRentAllowance">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">代付款：</span>
+                        <span class="result-value" id="resultAdvanceAllowance">0</span>
+                    </div>
+                    <div class="result-item subtotal">
                         <span class="result-label">津貼總額：</span>
-                        <span class="result-value" id="resultAllowance">0</span>
+                        <span class="result-value" id="resultAllowanceTotal">0</span>
+                    </div>
+                </div>
+
+                <!-- 減項扣款明細 -->
+                <div class="result-box">
+                    <h3 class="result-category">➖ 減項扣款明細</h3>
+                    <div class="result-item">
+                        <span class="result-label">勞保費：</span>
+                        <span class="result-value negative" id="resultLaborInsurance">0</span>
                     </div>
                     <div class="result-item">
-                        <span class="result-label">扣款總額：</span>
-                        <span class="result-value negative" id="resultDeduction">0</span>
+                        <span class="result-label">健保費：</span>
+                        <span class="result-value negative" id="resultHealthInsurance">0</span>
                     </div>
+                    <div class="result-item">
+                        <span class="result-label">眷屬健保：</span>
+                        <span class="result-value negative" id="resultSupplementaryHealthInsurance">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">請假扣款：</span>
+                        <span class="result-value negative" id="resultLeaveDeduction">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">預支金額：</span>
+                        <span class="result-value negative" id="resultAdvancePayment">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">代辦6小時扣款：</span>
+                        <span class="result-value negative" id="resultProxy6hrDeduction">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">其他代扣：</span>
+                        <span class="result-value negative" id="resultOtherDeduction">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">罰單（均分）：</span>
+                        <span class="result-value negative" id="resultFineShare">0</span>
+                    </div>
+                    <div class="result-item subtotal">
+                        <span class="result-label">扣款總額：</span>
+                        <span class="result-value negative" id="resultDeductionTotal">0</span>
+                    </div>
+                </div>
+
+                <!-- 實發薪資 -->
+                <div class="result-box final">
                     <div class="result-item total">
                         <span class="result-label">實發薪資：</span>
                         <span class="result-value" id="resultNetSalary">0</span>

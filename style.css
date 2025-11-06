@@ -198,6 +198,20 @@ textarea {
     margin-top: 20px;
 }
 
+.result-box.final {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.2) 100%);
+    border: 2px solid rgba(16, 185, 129, 0.5);
+}
+
+.result-category {
+    font-size: 1.1rem;
+    color: #f1f5f9;
+    margin-bottom: 15px;
+    font-weight: 600;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(100, 116, 139, 0.3);
+}
+
 .result-item {
     display: flex;
     justify-content: space-between;
@@ -208,6 +222,17 @@ textarea {
 
 .result-item:last-child {
     border-bottom: none;
+}
+
+.result-item.subtotal {
+    margin-top: 10px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(100, 116, 139, 0.5);
+    font-weight: 600;
+}
+
+.result-item.subtotal .result-value {
+    font-size: 1.15rem;
 }
 
 .result-item.total {

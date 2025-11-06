@@ -1,6 +1,5 @@
 // Google Apps Script Web App URL - 請替換成您部署後的 URL
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzLOVQK5O0-HUv916FsBw-NRDQ50YyEbnQSNDnL8IpyGVi1vDHfSaDd8JW9HOA0_RNw/exec';
-
 // 頁面切換函數
 function goToCalculation() {
     document.getElementById('settingPage').classList.remove('active');
@@ -174,18 +173,54 @@ function calculateLocalSalary(data) {
     return {
         basicSalary: basicSalary,
         overtimePay: overtimePay,
+        // 加項明細
+        mealAllowance: mealTotal,
+        attendanceAllowance: attendanceAllowance,
+        jobAllowance: jobAllowance,
+        rentAllowance: rentAllowance,
+        advanceAllowance: advanceAllowance,
         totalAllowance: totalAllowance,
+        // 減項明細
+        laborInsurance: laborInsurance,
+        healthInsurance: healthInsurance,
+        supplementaryHealthInsurance: supplementaryHealthInsurance,
+        leaveDeduction: data.leaveDeduction,
+        advancePayment: data.advancePayment,
+        proxy6hrDeduction: data.proxy6hrDeduction,
+        otherDeduction: data.otherDeduction,
+        fineShare: data.fineShare,
         totalDeduction: totalDeduction,
+        // 實發薪資
         netSalary: netSalary
     };
 }
 
 // 顯示計算結果
 function displayResult(result) {
+    // 基本薪資
     document.getElementById('resultBasicSalary').textContent = `NT$ ${result.basicSalary.toLocaleString()}`;
     document.getElementById('resultOvertime').textContent = `NT$ ${result.overtimePay.toLocaleString()}`;
-    document.getElementById('resultAllowance').textContent = `NT$ ${result.totalAllowance.toLocaleString()}`;
-    document.getElementById('resultDeduction').textContent = `NT$ ${result.totalDeduction.toLocaleString()}`;
+    
+    // 加項津貼明細
+    document.getElementById('resultMealAllowance').textContent = `NT$ ${result.mealAllowance.toLocaleString()}`;
+    document.getElementById('resultAttendanceAllowance').textContent = `NT$ ${result.attendanceAllowance.toLocaleString()}`;
+    document.getElementById('resultJobAllowance').textContent = `NT$ ${result.jobAllowance.toLocaleString()}`;
+    document.getElementById('resultRentAllowance').textContent = `NT$ ${result.rentAllowance.toLocaleString()}`;
+    document.getElementById('resultAdvanceAllowance').textContent = `NT$ ${result.advanceAllowance.toLocaleString()}`;
+    document.getElementById('resultAllowanceTotal').textContent = `NT$ ${result.totalAllowance.toLocaleString()}`;
+    
+    // 減項扣款明細
+    document.getElementById('resultLaborInsurance').textContent = `NT$ ${result.laborInsurance.toLocaleString()}`;
+    document.getElementById('resultHealthInsurance').textContent = `NT$ ${result.healthInsurance.toLocaleString()}`;
+    document.getElementById('resultSupplementaryHealthInsurance').textContent = `NT$ ${result.supplementaryHealthInsurance.toLocaleString()}`;
+    document.getElementById('resultLeaveDeduction').textContent = `NT$ ${result.leaveDeduction.toLocaleString()}`;
+    document.getElementById('resultAdvancePayment').textContent = `NT$ ${result.advancePayment.toLocaleString()}`;
+    document.getElementById('resultProxy6hrDeduction').textContent = `NT$ ${result.proxy6hrDeduction.toLocaleString()}`;
+    document.getElementById('resultOtherDeduction').textContent = `NT$ ${result.otherDeduction.toLocaleString()}`;
+    document.getElementById('resultFineShare').textContent = `NT$ ${result.fineShare.toLocaleString()}`;
+    document.getElementById('resultDeductionTotal').textContent = `NT$ ${result.totalDeduction.toLocaleString()}`;
+    
+    // 實發薪資
     document.getElementById('resultNetSalary').textContent = `NT$ ${result.netSalary.toLocaleString()}`;
     
     document.getElementById('resultSection').style.display = 'block';
