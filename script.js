@@ -1,14 +1,112 @@
 // Google Apps Script Web App URL - 請替換成您部署後的 URL
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzLOVQK5O0-HUv916FsBw-NRDQ50YyEbnQSNDnL8IpyGVi1vDHfSaDd8JW9HOA0_RNw/exec';
+
+
+// 全域變數：儲存當前選擇的員工資料
+let currentEmployeeData = null;
+
 // 頁面切換函數
 function goToCalculation() {
     document.getElementById('settingPage').classList.remove('active');
     document.getElementById('calculationPage').classList.add('active');
+    
+    // 載入員工列表
+    loadEmployeeList();
 }
 
 function goToSetting() {
     document.getElementById('calculationPage').classList.remove('active');
     document.getElementById('settingPage').classList.add('active');
+}
+
+// 載入員工列表到下拉選單
+async function loadEmployeeList() {
+    try {
+        const response = await fetch(`${SCRIPT_URL}?action=getEmployeeList`, {
+            method: 'GET',
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success' && data.employees) {
+            const select = document.getElementById('calcEmployeeId');
+            
+            // 清空現有選項（保留第一個預設選項）
+            select.innerHTML = '<option value="">-- 請選擇員工 --</option>';
+            
+            // 加入員工選項
+            data.employees.forEach(emp => {
+                const option = document.createElement('option');
+                option.value = emp.employeeId;
+                option.textContent = `${emp.employeeId} - ${emp.employeeName}`;
+                select.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('載入員工列表失敗:', error);
+        showMessage('⚠️ 無法載入員工列表，請確認網路連線', 'error');
+    }
+}
+
+// 當選擇員工時，載入該員工的資料
+async function loadEmployeeData() {
+    const employeeId = document.getElementById('calcEmployeeId').value;
+    
+    if (!employeeId) {
+        // 清空顯示
+        document.getElementById('calcEmployeeName').value = '';
+        document.getElementById('employeeInfoBox').style.display = 'none';
+        currentEmployeeData = null;
+        return;
+    }
+    
+    try {
+        showMessage('正在載入員工資料...', 'info');
+        
+        const response = await fetch(`${SCRIPT_URL}?action=getEmployee&employeeId=${encodeURIComponent(employeeId)}`, {
+            method: 'GET',
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success' && data.employee) {
+            currentEmployeeData = data.employee;
+            
+            // 顯示員工姓名
+            document.getElementById('calcEmployeeName').value = data.employee.employeeName;
+            
+            // 顯示員工薪資資訊
+            const infoHtml = `
+                <div style="margin-top: 10px; line-height: 1.8;">
+                    薪資: NT$ ${data.employee.dailyWage.toLocaleString()} | 
+                    加班時薪: NT$ ${data.employee.overtimeWage.toLocaleString()} | 
+                    伙食津貼: NT$ ${data.employee.mealAllowance.toLocaleString()}/天<br>
+                    開車津貼: NT$ ${data.employee.attendanceAllowance.toLocaleString()} | 
+                    職務津貼: NT$ ${data.employee.jobAllowance.toLocaleString()} | 
+                    租屋津貼: NT$ ${data.employee.rentAllowance.toLocaleString()} | 
+                    代付款: NT$ ${data.employee.advanceAllowance.toLocaleString()}<br>
+                    勞保費: NT$ ${data.employee.laborInsurance.toLocaleString()} | 
+                    健保費: NT$ ${data.employee.healthInsurance.toLocaleString()} | 
+                    眷屬健保: NT$ ${data.employee.supplementaryHealthInsurance.toLocaleString()}
+                </div>
+            `;
+            document.getElementById('employeeInfo').innerHTML = infoHtml;
+            document.getElementById('employeeInfoBox').style.display = 'flex';
+            
+            // 移除載入訊息
+            const infoMessages = document.querySelectorAll('.info-message');
+            infoMessages.forEach(msg => msg.remove());
+            
+        } else {
+            showMessage('❌ 找不到該員工資料', 'error');
+            currentEmployeeData = null;
+        }
+        
+    } catch (error) {
+        console.error('載入員工資料失敗:', error);
+        showMessage('❌ 載入員工資料失敗，請檢查網路連線', 'error');
+        currentEmployeeData = null;
+    }
 }
 
 // 儲存員工資料到 Google Sheets
@@ -89,6 +187,12 @@ async function calculateSalary() {
         showMessage('請填寫必填欄位（員工ID和計算年月）', 'error');
         return;
     }
+    
+    // 檢查是否已載入員工資料
+    if (!currentEmployeeData) {
+        showMessage('❌ 請先選擇員工以載入薪資資料', 'error');
+        return;
+    }
 
     showMessage('正在計算薪資...', 'info');
 
@@ -96,6 +200,7 @@ async function calculateSalary() {
     const calculationData = {
         action: 'calculateSalary',
         employeeId: employeeId,
+        employeeName: currentEmployeeData.employeeName,
         calcMonth: calcMonth,
         workDays: workDays,
         overtimeHours: parseFloat(document.getElementById('overtimeHours').value) || 0,
@@ -108,6 +213,15 @@ async function calculateSalary() {
     };
 
     try {
+        // 本地計算結果顯示
+        const result = calculateLocalSalary(calculationData);
+        
+        if (!result) {
+            return; // 如果計算失敗，提前返回
+        }
+        
+        displayResult(result);
+        
         // 發送資料到 Google Sheets
         const response = await fetch(SCRIPT_URL, {
             method: 'POST',
@@ -117,10 +231,6 @@ async function calculateSalary() {
             },
             body: JSON.stringify(calculationData)
         });
-
-        // 本地計算結果顯示（因為 no-cors 無法讀取回應）
-        const result = calculateLocalSalary(calculationData);
-        displayResult(result);
         
         showMessage('✅ 薪資計算完成並已儲存到 Google 試算表！', 'success');
 
@@ -132,17 +242,23 @@ async function calculateSalary() {
 
 // 本地計算薪資（用於顯示）
 function calculateLocalSalary(data) {
-    // 從員工設定頁面讀取基本薪資設定
-    const dailyWage = parseFloat(document.getElementById('dailyWage').value) || 1500;
-    const overtimeWage = parseFloat(document.getElementById('overtimeWage').value) || 200;
-    const mealAllowance = parseFloat(document.getElementById('mealAllowance').value) || 0;
-    const attendanceAllowance = parseFloat(document.getElementById('attendanceAllowance').value) || 0;
-    const jobAllowance = parseFloat(document.getElementById('jobAllowance').value) || 0;
-    const rentAllowance = parseFloat(document.getElementById('rentAllowance').value) || 0;
-    const advanceAllowance = parseFloat(document.getElementById('advanceAllowance').value) || 0;
-    const laborInsurance = parseFloat(document.getElementById('laborInsurance').value) || 0;
-    const healthInsurance = parseFloat(document.getElementById('healthInsurance').value) || 0;
-    const supplementaryHealthInsurance = parseFloat(document.getElementById('supplementaryHealthInsurance').value) || 0;
+    // 檢查是否已載入員工資料
+    if (!currentEmployeeData) {
+        showMessage('❌ 請先選擇員工', 'error');
+        return null;
+    }
+    
+    // 使用從 Google Sheets 載入的員工資料
+    const dailyWage = currentEmployeeData.dailyWage;
+    const overtimeWage = currentEmployeeData.overtimeWage;
+    const mealAllowance = currentEmployeeData.mealAllowance;
+    const attendanceAllowance = currentEmployeeData.attendanceAllowance;
+    const jobAllowance = currentEmployeeData.jobAllowance;
+    const rentAllowance = currentEmployeeData.rentAllowance;
+    const advanceAllowance = currentEmployeeData.advanceAllowance;
+    const laborInsurance = currentEmployeeData.laborInsurance;
+    const healthInsurance = currentEmployeeData.healthInsurance;
+    const supplementaryHealthInsurance = currentEmployeeData.supplementaryHealthInsurance;
 
     // 計算基本薪資
     const basicSalary = dailyWage * data.workDays;

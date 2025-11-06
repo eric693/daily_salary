@@ -210,12 +210,31 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="calcEmployeeId">員工ID <span class="required">*</span></label>
-                        <input type="text" id="calcEmployeeId" placeholder="請輸入員工ID">
+                        <select id="calcEmployeeId" onchange="loadEmployeeData()">
+                            <option value="">-- 請選擇員工 --</option>
+                        </select>
+                        <small>請先選擇員工</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="calcEmployeeName">員工姓名</label>
+                        <input type="text" id="calcEmployeeName" readonly placeholder="選擇員工後自動顯示">
                     </div>
                     <div class="form-group">
                         <label for="calcMonth">計算年月 <span class="required">*</span></label>
                         <input type="month" id="calcMonth">
                     </div>
+                </div>
+
+                <!-- 員工薪資資訊 (自動帶入) -->
+                <div class="info-box" id="employeeInfoBox" style="display: none;">
+                    <span class="info-icon">ℹ️</span>
+                    <div>
+                        <strong>員工薪資設定：</strong>
+                        <div id="employeeInfo"></div>
+                    </div>
+                </div>
+
+                <div class="form-grid">
                     <div class="form-group">
                         <label for="workDays">上班天數 <span class="required">*</span></label>
                         <input type="number" id="workDays" value="20">
