@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>日薪員工管理系統</title>
+    <title>薪資員工管理系統</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <!-- 日薪員工設定頁面 -->
+        <!-- 薪資員工設定頁面 -->
         <div id="settingPage" class="page active">
-            <h1 class="page-title">📋 日薪員工設定</h1>
-            <p class="page-subtitle">設定日薪員工的基本資料、薪資資訊與扣款項目</p>
+            <h1 class="page-title">📋 薪資員工設定</h1>
+            <p class="page-subtitle">設定薪資員工的基本資料、薪資資訊與扣款項目</p>
 
             <!-- 基本資訊 -->
             <section class="section">
@@ -37,7 +37,7 @@
                     </div>
                     <div class="form-group">
                         <label for="phone">手機</label>
-                        <input type="tel" id="phone" placeholder="0912345678">
+                        <input type="text" id="phone" placeholder="0912345678">
                     </div>
                     <div class="form-group">
                         <label for="email">Email</label>
@@ -53,7 +53,7 @@
                     </div>
                     <div class="form-group">
                         <label for="emergencyPhone">緊急聯絡人電話</label>
-                        <input type="tel" id="emergencyPhone" placeholder="0987654321">
+                        <input type="text" id="emergencyPhone" placeholder="0987654321">
                     </div>
                     <div class="form-group">
                         <label for="address">通訊地址</label>
@@ -69,7 +69,7 @@
                     <div class="form-group">
                         <label for="dailyWage">薪資 <span class="required">*</span></label>
                         <input type="number" id="dailyWage" value="1500">
-                        <small>基本工資</small>
+                        <small>基本薪資</small>
                     </div>
                     <div class="form-group">
                         <label for="overtimeWage">加班時薪 <span class="required">*</span></label>
@@ -188,14 +188,14 @@
                 </div>
             </section>
 
-            <button class="btn-primary" onclick="saveEmployeeData()">💾 儲存日薪員工資料</button>
-            <button class="btn-secondary" onclick="goToCalculation()">下一步：計算日薪</button>
+            <button class="btn-primary" onclick="saveEmployeeData()">💾 儲存薪資員工資料</button>
+            <button class="btn-secondary" onclick="goToCalculation()">下一步：計算薪資</button>
         </div>
 
-        <!-- 日薪計算頁面 -->
+        <!-- 薪資計算頁面 -->
         <div id="calculationPage" class="page">
-            <h1 class="page-title">📊 日薪計算</h1>
-            <p class="page-subtitle">自動計算員工日薪資，包含加班費、津貼、扣款項目</p>
+            <h1 class="page-title">📊 薪資計算</h1>
+            <p class="page-subtitle">自動計算員工薪資，包含加班費、津貼、扣款項目</p>
 
             <section class="section">
                 <div class="form-grid">
@@ -251,7 +251,7 @@
                 </div>
             </section>
 
-            <button class="btn-primary" onclick="calculateSalary()">🧮 開始計算日薪</button>
+            <button class="btn-primary" onclick="calculateSalary()">🧮 開始計算薪資</button>
             <button class="btn-secondary" onclick="goToSetting()">返回員工設定</button>
 
             <!-- 計算結果 -->
@@ -259,7 +259,7 @@
                 <h2 class="section-title">💵 計算結果</h2>
                 <div class="result-box">
                     <div class="result-item">
-                        <span class="result-label">基本日薪總額：</span>
+                        <span class="result-label">基本薪資總額：</span>
                         <span class="result-value" id="resultBasicSalary">0</span>
                     </div>
                     <div class="result-item">

@@ -143,7 +143,7 @@ function calculateLocalSalary(data) {
     const healthInsurance = parseFloat(document.getElementById('healthInsurance').value) || 0;
     const supplementaryHealthInsurance = parseFloat(document.getElementById('supplementaryHealthInsurance').value) || 0;
 
-    // 計算基本日薪
+    // 計算基本薪資
     const basicSalary = dailyWage * data.workDays;
     
     // 計算加班費
