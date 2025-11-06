@@ -23,6 +23,7 @@ async function saveEmployeeData() {
         phone: document.getElementById('phone').value,
         email: document.getElementById('email').value,
         birthDate: document.getElementById('birthDate').value,
+        dependents: parseInt(document.getElementById('dependents').value) || 0,
         emergencyContact: document.getElementById('emergencyContact').value,
         emergencyPhone: document.getElementById('emergencyPhone').value,
         address: document.getElementById('address').value,
@@ -37,6 +38,7 @@ async function saveEmployeeData() {
         healthInsurance: parseFloat(document.getElementById('healthInsurance').value) || 0,
         supplementaryHealthInsurance: parseFloat(document.getElementById('supplementaryHealthInsurance').value) || 0,
         bankCode: document.getElementById('bankCode').value,
+        bankBranch: document.getElementById('bankBranch').value,
         bankAccount: document.getElementById('bankAccount').value,
         notes: document.getElementById('notes').value,
         timestamp: new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })
@@ -200,6 +202,7 @@ function clearEmployeeForm() {
     document.getElementById('phone').value = '';
     document.getElementById('email').value = '';
     document.getElementById('birthDate').value = '';
+    document.getElementById('dependents').value = '0';
     document.getElementById('emergencyContact').value = '';
     document.getElementById('emergencyPhone').value = '';
     document.getElementById('address').value = '';
@@ -214,6 +217,7 @@ function clearEmployeeForm() {
     document.getElementById('healthInsurance').value = '0';
     document.getElementById('supplementaryHealthInsurance').value = '0';
     document.getElementById('bankCode').value = '';
+    document.getElementById('bankBranch').value = '';
     document.getElementById('bankAccount').value = '';
     document.getElementById('notes').value = '';
 }
