@@ -8,6 +8,24 @@
 </head>
 <body>
     <div class="container">
+        <!-- 密碼輸入對話框 -->
+        <div id="passwordModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h2 style="color: #f1f5f9; margin-bottom: 10px;">🔒 薪資計算權限驗證</h2>
+                <p style="color: #cbd5e1; margin-bottom: 20px;">請輸入密碼以進入薪資計算頁面</p>
+                <div class="form-group">
+                    <input type="password" id="passwordInput" placeholder="請輸入密碼" autocomplete="off" style="margin-bottom: 15px;">
+                </div>
+                <div class="modal-buttons">
+                    <button class="btn-primary" onclick="checkPassword()">確認</button>
+                    <button class="btn-secondary" onclick="cancelPassword()">取消</button>
+                </div>
+                <div id="passwordError" class="password-error" style="display: none; color: #ef4444; margin-top: 15px; text-align: center;">
+                    ❌ 密碼錯誤，請重新輸入
+                </div>
+            </div>
+        </div>
+
         <!-- 薪資員工設定頁面 -->
         <div id="settingPage" class="page active">
             <h1 class="page-title">📋 薪資員工設定</h1>

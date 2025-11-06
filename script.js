@@ -4,13 +4,69 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzLOVQK5O0-HUv916FsB
 // 全域變數：儲存當前選擇的員工資料
 let currentEmployeeData = null;
 
+// 薪資計算頁面密碼
+const CALCULATION_PASSWORD = '12345';
+
+// 顯示密碼輸入對話框
+function showPasswordModal() {
+    document.getElementById('passwordModal').style.display = 'flex';
+    document.getElementById('passwordInput').value = '';
+    document.getElementById('passwordError').style.display = 'none';
+    // 自動聚焦到密碼輸入框
+    setTimeout(() => {
+        document.getElementById('passwordInput').focus();
+    }, 100);
+}
+
+// 隱藏密碼輸入對話框
+function hidePasswordModal() {
+    document.getElementById('passwordModal').style.display = 'none';
+}
+
+// 檢查密碼
+function checkPassword() {
+    const inputPassword = document.getElementById('passwordInput').value;
+    
+    if (inputPassword === CALCULATION_PASSWORD) {
+        // 密碼正確，隱藏對話框並進入薪資計算頁面
+        hidePasswordModal();
+        document.getElementById('settingPage').classList.remove('active');
+        document.getElementById('calculationPage').classList.add('active');
+        
+        // 載入員工列表
+        loadEmployeeList();
+        
+        showMessage('✅ 驗證成功，已進入薪資計算頁面', 'success');
+    } else {
+        // 密碼錯誤，顯示錯誤訊息
+        document.getElementById('passwordError').style.display = 'block';
+        document.getElementById('passwordInput').value = '';
+        document.getElementById('passwordInput').focus();
+    }
+}
+
+// 取消密碼輸入
+function cancelPassword() {
+    hidePasswordModal();
+    showMessage('已取消進入薪資計算頁面', 'info');
+}
+
+// 監聽密碼輸入框的 Enter 鍵
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordInput = document.getElementById('passwordInput');
+    if (passwordInput) {
+        passwordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+    }
+});
+
 // 頁面切換函數
 function goToCalculation() {
-    document.getElementById('settingPage').classList.remove('active');
-    document.getElementById('calculationPage').classList.add('active');
-    
-    // 載入員工列表
-    loadEmployeeList();
+    // 顯示密碼輸入對話框
+    showPasswordModal();
 }
 
 function goToSetting() {
