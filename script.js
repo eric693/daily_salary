@@ -12,7 +12,6 @@ function showPasswordModal() {
     document.getElementById('passwordModal').style.display = 'flex';
     document.getElementById('passwordInput').value = '';
     document.getElementById('passwordError').style.display = 'none';
-    // 自動聚焦到密碼輸入框
     setTimeout(() => {
         document.getElementById('passwordInput').focus();
     }, 100);
@@ -28,17 +27,12 @@ function checkPassword() {
     const inputPassword = document.getElementById('passwordInput').value;
     
     if (inputPassword === CALCULATION_PASSWORD) {
-        // 密碼正確，隱藏對話框並進入薪資計算頁面
         hidePasswordModal();
         document.getElementById('settingPage').classList.remove('active');
         document.getElementById('calculationPage').classList.add('active');
-        
-        // 載入員工列表
         loadEmployeeList();
-        
         showMessage('✅ 驗證成功，已進入薪資計算頁面', 'success');
     } else {
-        // 密碼錯誤，顯示錯誤訊息
         document.getElementById('passwordError').style.display = 'block';
         document.getElementById('passwordInput').value = '';
         document.getElementById('passwordInput').focus();
@@ -65,7 +59,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // 頁面切換函數
 function goToCalculation() {
-    // 顯示密碼輸入對話框
     showPasswordModal();
 }
 
@@ -85,11 +78,8 @@ async function loadEmployeeList() {
         
         if (data.status === 'success' && data.employees) {
             const select = document.getElementById('calcEmployeeId');
-            
-            // 清空現有選項（保留第一個預設選項）
             select.innerHTML = '<option value="">-- 請選擇員工 --</option>';
             
-            // 加入員工選項
             data.employees.forEach(emp => {
                 const option = document.createElement('option');
                 option.value = emp.employeeId;
@@ -108,7 +98,6 @@ async function loadEmployeeData() {
     const employeeId = document.getElementById('calcEmployeeId').value;
     
     if (!employeeId) {
-        // 清空顯示
         document.getElementById('calcEmployeeName').value = '';
         document.getElementById('employeeInfoBox').style.display = 'none';
         currentEmployeeData = null;
@@ -137,10 +126,8 @@ async function loadEmployeeData() {
             
             console.log('載入成功，員工資料:', currentEmployeeData);
             
-            // 顯示員工姓名
             document.getElementById('calcEmployeeName').value = data.employee.employeeName;
             
-            // 顯示員工薪資資訊
             const infoHtml = `
                 <div style="margin-top: 10px; line-height: 1.8;">
                     薪資: NT$ ${Number(data.employee.dailyWage).toLocaleString()} | 
@@ -158,7 +145,6 @@ async function loadEmployeeData() {
             document.getElementById('employeeInfo').innerHTML = infoHtml;
             document.getElementById('employeeInfoBox').style.display = 'flex';
             
-            // 移除載入訊息
             const infoMessages = document.querySelectorAll('.info-message');
             infoMessages.forEach(msg => msg.remove());
             
@@ -179,7 +165,6 @@ async function loadEmployeeData() {
 
 // 儲存員工資料到 Google Sheets
 async function saveEmployeeData() {
-    // 收集表單資料
     const employeeData = {
         action: 'saveEmployee',
         employeeId: document.getElementById('employeeId').value,
@@ -209,13 +194,11 @@ async function saveEmployeeData() {
         timestamp: new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })
     };
 
-    // 驗證必填欄位
     if (!employeeData.employeeId || !employeeData.employeeName) {
         showMessage('請填寫必填欄位（員工ID和姓名）', 'error');
         return;
     }
 
-    // 顯示載入狀態
     showMessage('正在儲存資料...', 'info');
 
     try {
@@ -228,10 +211,8 @@ async function saveEmployeeData() {
             body: JSON.stringify(employeeData)
         });
 
-        // 因為 no-cors 模式，我們無法讀取回應，所以假設成功
         showMessage('✅ 員工資料已成功儲存到 Google 試算表！', 'success');
         
-        // 3秒後清除表單
         setTimeout(() => {
             if (confirm('是否要清除表單以新增下一位員工？')) {
                 clearEmployeeForm();
@@ -264,33 +245,37 @@ async function calculateSalary() {
 
     showMessage('正在計算薪資...', 'info');
 
-    // 收集計算資料
+    // 收集計算資料 - 確保資料完整且格式正確
     const calculationData = {
         action: 'calculateSalary',
-        employeeId: employeeId,
-        employeeName: currentEmployeeData.employeeName,
+        employeeId: String(employeeId),  // 確保是字串
+        employeeName: String(currentEmployeeData.employeeName),  // 確保有員工姓名
         calcMonth: calcMonth,
-        workDays: workDays,
-        overtimeHours: parseFloat(document.getElementById('overtimeHours').value) || 0,
-        leaveDeduction: parseFloat(document.getElementById('leaveDeduction').value) || 0,
-        advancePayment: parseFloat(document.getElementById('advancePayment').value) || 0,
-        proxy6hrDeduction: parseFloat(document.getElementById('proxy6hrDeduction').value) || 0,
-        otherDeduction: parseFloat(document.getElementById('otherDeduction').value) || 0,
-        fineShare: parseFloat(document.getElementById('fineShare').value) || 0,
+        workDays: Number(workDays),
+        overtimeHours: Number(parseFloat(document.getElementById('overtimeHours').value) || 0),
+        leaveDeduction: Number(parseFloat(document.getElementById('leaveDeduction').value) || 0),
+        advancePayment: Number(parseFloat(document.getElementById('advancePayment').value) || 0),
+        proxy6hrDeduction: Number(parseFloat(document.getElementById('proxy6hrDeduction').value) || 0),
+        otherDeduction: Number(parseFloat(document.getElementById('otherDeduction').value) || 0),
+        fineShare: Number(parseFloat(document.getElementById('fineShare').value) || 0),
         timestamp: new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })
     };
+
+    console.log('準備送出的計算資料:', calculationData);
 
     try {
         // 本地計算結果顯示
         const result = calculateLocalSalary(calculationData);
         
         if (!result) {
-            return; // 如果計算失敗，提前返回
+            return;
         }
         
         displayResult(result);
         
         // 發送資料到 Google Sheets
+        console.log('發送資料到 Google Sheets:', JSON.stringify(calculationData));
+        
         const response = await fetch(SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
@@ -310,13 +295,11 @@ async function calculateSalary() {
 
 // 本地計算薪資（用於顯示）
 function calculateLocalSalary(data) {
-    // 檢查是否已載入員工資料
     if (!currentEmployeeData) {
         showMessage('❌ 請先選擇員工', 'error');
         return null;
     }
     
-    // 使用從 Google Sheets 載入的員工資料
     const dailyWage = currentEmployeeData.dailyWage;
     const overtimeWage = currentEmployeeData.overtimeWage;
     const mealAllowance = currentEmployeeData.mealAllowance;
@@ -328,19 +311,11 @@ function calculateLocalSalary(data) {
     const healthInsurance = currentEmployeeData.healthInsurance;
     const supplementaryHealthInsurance = currentEmployeeData.supplementaryHealthInsurance;
 
-    // 計算基本薪資
     const basicSalary = dailyWage * data.workDays;
-    
-    // 計算加班費
     const overtimePay = overtimeWage * data.overtimeHours;
-    
-    // 計算伙食津貼
     const mealTotal = mealAllowance * data.workDays;
-    
-    // 計算總津貼
     const totalAllowance = mealTotal + attendanceAllowance + jobAllowance + rentAllowance + advanceAllowance;
     
-    // 計算總扣款
     const totalDeduction = 
         laborInsurance + 
         healthInsurance + 
@@ -351,20 +326,17 @@ function calculateLocalSalary(data) {
         data.otherDeduction +
         data.fineShare;
     
-    // 計算實發薪資
     const netSalary = basicSalary + overtimePay + totalAllowance - totalDeduction;
 
     return {
         basicSalary: basicSalary,
         overtimePay: overtimePay,
-        // 加項明細
         mealAllowance: mealTotal,
         attendanceAllowance: attendanceAllowance,
         jobAllowance: jobAllowance,
         rentAllowance: rentAllowance,
         advanceAllowance: advanceAllowance,
         totalAllowance: totalAllowance,
-        // 減項明細
         laborInsurance: laborInsurance,
         healthInsurance: healthInsurance,
         supplementaryHealthInsurance: supplementaryHealthInsurance,
@@ -374,18 +346,15 @@ function calculateLocalSalary(data) {
         otherDeduction: data.otherDeduction,
         fineShare: data.fineShare,
         totalDeduction: totalDeduction,
-        // 實發薪資
         netSalary: netSalary
     };
 }
 
 // 顯示計算結果
 function displayResult(result) {
-    // 基本薪資
     document.getElementById('resultBasicSalary').textContent = `NT$ ${result.basicSalary.toLocaleString()}`;
     document.getElementById('resultOvertime').textContent = `NT$ ${result.overtimePay.toLocaleString()}`;
     
-    // 加項津貼明細
     document.getElementById('resultMealAllowance').textContent = `NT$ ${result.mealAllowance.toLocaleString()}`;
     document.getElementById('resultAttendanceAllowance').textContent = `NT$ ${result.attendanceAllowance.toLocaleString()}`;
     document.getElementById('resultJobAllowance').textContent = `NT$ ${result.jobAllowance.toLocaleString()}`;
@@ -393,7 +362,6 @@ function displayResult(result) {
     document.getElementById('resultAdvanceAllowance').textContent = `NT$ ${result.advanceAllowance.toLocaleString()}`;
     document.getElementById('resultAllowanceTotal').textContent = `NT$ ${result.totalAllowance.toLocaleString()}`;
     
-    // 減項扣款明細
     document.getElementById('resultLaborInsurance').textContent = `NT$ ${result.laborInsurance.toLocaleString()}`;
     document.getElementById('resultHealthInsurance').textContent = `NT$ ${result.healthInsurance.toLocaleString()}`;
     document.getElementById('resultSupplementaryHealthInsurance').textContent = `NT$ ${result.supplementaryHealthInsurance.toLocaleString()}`;
@@ -404,12 +372,10 @@ function displayResult(result) {
     document.getElementById('resultFineShare').textContent = `NT$ ${result.fineShare.toLocaleString()}`;
     document.getElementById('resultDeductionTotal').textContent = `NT$ ${result.totalDeduction.toLocaleString()}`;
     
-    // 實發薪資
     document.getElementById('resultNetSalary').textContent = `NT$ ${result.netSalary.toLocaleString()}`;
     
     document.getElementById('resultSection').style.display = 'block';
     
-    // 滾動到結果區域
     document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
@@ -443,20 +409,16 @@ function clearEmployeeForm() {
 
 // 顯示訊息
 function showMessage(message, type) {
-    // 移除現有訊息
     const existingMessages = document.querySelectorAll('.success-message, .error-message, .info-message');
     existingMessages.forEach(msg => msg.remove());
 
-    // 創建新訊息
     const messageDiv = document.createElement('div');
     messageDiv.className = type === 'success' ? 'success-message' : type === 'error' ? 'error-message' : 'info-message';
     messageDiv.innerHTML = `<span>${message}</span>`;
     
-    // 插入到活動頁面的頂部
     const activePage = document.querySelector('.page.active');
     activePage.insertBefore(messageDiv, activePage.firstChild);
 
-    // 3秒後自動移除（除非是資訊訊息）
     if (type !== 'info') {
         setTimeout(() => {
             messageDiv.style.opacity = '0';
@@ -467,18 +429,16 @@ function showMessage(message, type) {
 
 // 頁面載入時的初始化
 document.addEventListener('DOMContentLoaded', function() {
-    // 設定當月為預設計算月份
     const today = new Date();
     const currentMonth = today.toISOString().slice(0, 7);
     document.getElementById('calcMonth').value = currentMonth;
 
-    // 檢查是否已設定 Google Apps Script URL
     if (SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
         showMessage('⚠️ 請先在 script.js 中設定您的 Google Apps Script Web App URL', 'error');
     }
 });
 
-// 新增資訊訊息的 CSS（動態添加）
+// 新增資訊訊息的 CSS
 const style = document.createElement('style');
 style.textContent = `
     .info-message {
