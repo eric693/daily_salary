@@ -107,27 +107,32 @@ async function loadEmployeeData() {
     try {
         showMessage('正在載入員工資料...', 'info');
         
-        console.log('正在載入員工ID:', employeeId);
+        console.log('🔍 正在載入員工ID:', employeeId);
         
         const url = `${SCRIPT_URL}?action=getEmployee&employeeId=${encodeURIComponent(employeeId)}`;
-        console.log('請求URL:', url);
+        console.log('📡 請求URL:', url);
         
         const response = await fetch(url, {
             method: 'GET',
         });
         
-        console.log('回應狀態:', response.status);
+        console.log('📥 回應狀態:', response.status);
         
         const data = await response.json();
-        console.log('回應資料:', data);
+        console.log('📦 回應資料:', data);
         
         if (data.status === 'success' && data.employee) {
             currentEmployeeData = data.employee;
             
-            console.log('載入成功，員工資料:', currentEmployeeData);
+            console.log('✅ 載入成功，員工資料:', currentEmployeeData);
+            console.log('👤 員工姓名:', currentEmployeeData.employeeName);
+            console.log('👤 員工姓名類型:', typeof currentEmployeeData.employeeName);
+            console.log('👤 員工姓名長度:', currentEmployeeData.employeeName ? currentEmployeeData.employeeName.length : 'undefined');
             
+            // 顯示員工姓名
             document.getElementById('calcEmployeeName').value = data.employee.employeeName;
             
+            // 顯示員工薪資資訊
             const infoHtml = `
                 <div style="margin-top: 10px; line-height: 1.8;">
                     薪資: NT$ ${Number(data.employee.dailyWage).toLocaleString()} | 
@@ -151,13 +156,13 @@ async function loadEmployeeData() {
             showMessage('✅ 員工資料載入成功', 'success');
             
         } else {
-            console.error('載入失敗:', data);
+            console.error('❌ 載入失敗:', data);
             showMessage(`❌ ${data.message || '找不到該員工資料'}`, 'error');
             currentEmployeeData = null;
         }
         
     } catch (error) {
-        console.error('載入員工資料失敗:', error);
+        console.error('❌ 載入員工資料失敗:', error);
         showMessage('❌ 載入員工資料失敗，請檢查網路連線或 Google Apps Script 設定', 'error');
         currentEmployeeData = null;
     }
@@ -231,6 +236,12 @@ async function calculateSalary() {
     const calcMonth = document.getElementById('calcMonth').value;
     const workDays = parseFloat(document.getElementById('workDays').value) || 0;
 
+    console.log('=== 開始計算薪資 ===');
+    console.log('📋 表單資料:');
+    console.log('  員工ID:', employeeId);
+    console.log('  計算年月:', calcMonth);
+    console.log('  上班天數:', workDays);
+
     // 驗證必填欄位
     if (!employeeId || !calcMonth) {
         showMessage('請填寫必填欄位（員工ID和計算年月）', 'error');
@@ -239,18 +250,33 @@ async function calculateSalary() {
     
     // 檢查是否已載入員工資料
     if (!currentEmployeeData) {
+        console.error('❌ currentEmployeeData 是 null 或 undefined');
         showMessage('❌ 請先選擇員工以載入薪資資料', 'error');
         return;
     }
 
+    console.log('✅ currentEmployeeData 存在');
+    console.log('📦 完整員工資料:', JSON.stringify(currentEmployeeData, null, 2));
+
+    // 特別檢查員工姓名
+    if (!currentEmployeeData.employeeName) {
+        console.error('❌ 警告: currentEmployeeData.employeeName 是空的!');
+        console.error('   employeeName 值:', currentEmployeeData.employeeName);
+        console.error('   employeeName 類型:', typeof currentEmployeeData.employeeName);
+        showMessage('❌ 錯誤: 員工姓名資料遺失，請重新選擇員工', 'error');
+        return;
+    }
+
+    console.log('✅ 員工姓名確認存在:', currentEmployeeData.employeeName);
+
     showMessage('正在計算薪資...', 'info');
 
-    // 收集計算資料 - 確保資料完整且格式正確
+    // 收集計算資料 - 確保每個欄位都有值
     const calculationData = {
         action: 'calculateSalary',
-        employeeId: String(employeeId),  // 確保是字串
-        employeeName: String(currentEmployeeData.employeeName),  // 確保有員工姓名
-        calcMonth: calcMonth,
+        employeeId: String(employeeId),
+        employeeName: String(currentEmployeeData.employeeName),  // 明確轉換為字串
+        calcMonth: String(calcMonth),
         workDays: Number(workDays),
         overtimeHours: Number(parseFloat(document.getElementById('overtimeHours').value) || 0),
         leaveDeduction: Number(parseFloat(document.getElementById('leaveDeduction').value) || 0),
@@ -261,20 +287,31 @@ async function calculateSalary() {
         timestamp: new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })
     };
 
-    console.log('準備送出的計算資料:', calculationData);
+    console.log('📤 準備送出的計算資料:');
+    console.log(JSON.stringify(calculationData, null, 2));
+    
+    // 再次確認關鍵欄位
+    console.log('🔍 關鍵欄位檢查:');
+    console.log('  employeeId:', calculationData.employeeId, '(類型:', typeof calculationData.employeeId + ')');
+    console.log('  employeeName:', calculationData.employeeName, '(類型:', typeof calculationData.employeeName + ')');
+    console.log('  employeeName 長度:', calculationData.employeeName.length);
 
     try {
         // 本地計算結果顯示
         const result = calculateLocalSalary(calculationData);
         
         if (!result) {
+            console.error('❌ 本地計算失敗');
             return;
         }
         
+        console.log('✅ 本地計算完成');
         displayResult(result);
         
         // 發送資料到 Google Sheets
-        console.log('發送資料到 Google Sheets:', JSON.stringify(calculationData));
+        console.log('📡 發送資料到 Google Sheets...');
+        console.log('📡 URL:', SCRIPT_URL);
+        console.log('📡 資料:', JSON.stringify(calculationData));
         
         const response = await fetch(SCRIPT_URL, {
             method: 'POST',
@@ -285,10 +322,12 @@ async function calculateSalary() {
             body: JSON.stringify(calculationData)
         });
         
+        console.log('✅ 資料已發送');
         showMessage('✅ 薪資計算完成並已儲存到 Google 試算表！', 'success');
 
     } catch (error) {
-        console.error('錯誤:', error);
+        console.error('❌ 錯誤:', error);
+        console.error('❌ 錯誤堆疊:', error.stack);
         showMessage('❌ 計算失敗，請檢查網路連線或聯絡管理員', 'error');
     }
 }
@@ -296,6 +335,7 @@ async function calculateSalary() {
 // 本地計算薪資（用於顯示）
 function calculateLocalSalary(data) {
     if (!currentEmployeeData) {
+        console.error('❌ calculateLocalSalary: currentEmployeeData 是 null');
         showMessage('❌ 請先選擇員工', 'error');
         return null;
     }
