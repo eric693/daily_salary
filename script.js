@@ -214,7 +214,15 @@ async function saveEmployeeData() {
     console.log('  通訊地址:', employeeData.address);
     console.log('  基本薪資:', employeeData.dailyWage);
     console.log('  加班時薪:', employeeData.overtimeWage);
-
+    console.log('  伙食津貼:', employeeData.mealAllowance);           // ← 新增
+    console.log('  開車津貼:', employeeData.attendanceAllowance);     // ← 新增
+    console.log('  職務津貼:', employeeData.jobAllowance);           // ← 新增
+    console.log('  租屋津貼:', employeeData.rentAllowance);          // ← 新增
+    console.log('  代付款:', employeeData.advanceAllowance);         // ← 新增
+    console.log('  勞保費:', employeeData.laborInsurance);           // ← 新增
+    console.log('  健保費:', employeeData.healthInsurance);          // ← 新增
+    console.log('  眷屬健保:', employeeData.supplementaryHealthInsurance); // ← 新增
+    console.log('  眷屬人數:', employeeData.dependents);            // ← 新增
     showMessage('正在儲存資料...', 'info');
 
     try {
