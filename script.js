@@ -225,9 +225,8 @@ async function saveEmployeeData() {
     try {
         const response = await fetch(SCRIPT_URL, {
             method: 'POST',
-            mode: 'no-cors',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'text/plain',
             },
             body: JSON.stringify(employeeData)
         });
@@ -332,9 +331,8 @@ async function calculateSalary() {
         // 發送完整資料到 Google Sheets
         const response = await fetch(SCRIPT_URL, {
             method: 'POST',
-            mode: 'no-cors',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'text/plain',
             },
             body: JSON.stringify(calculationData)
         });
