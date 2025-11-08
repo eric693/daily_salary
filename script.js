@@ -55,6 +55,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    
+    // 設定當前月份
+    const today = new Date();
+    const currentMonth = today.toISOString().slice(0, 7);
+    document.getElementById('calcMonth').value = currentMonth;
+
+    if (SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
+        showMessage('⚠️ 請先在 script.js 中設定您的 Google Apps Script Web App URL', 'error');
+    }
 });
 
 // 頁面切換函數
@@ -107,32 +116,19 @@ async function loadEmployeeData() {
     try {
         showMessage('正在載入員工資料...', 'info');
         
-        console.log('🔍 正在載入員工ID:', employeeId);
-        
         const url = `${SCRIPT_URL}?action=getEmployee&employeeId=${encodeURIComponent(employeeId)}`;
-        console.log('📡 請求URL:', url);
         
         const response = await fetch(url, {
             method: 'GET',
         });
         
-        console.log('📥 回應狀態:', response.status);
-        
         const data = await response.json();
-        console.log('📦 回應資料:', data);
         
         if (data.status === 'success' && data.employee) {
             currentEmployeeData = data.employee;
             
-            console.log('✅ 載入成功，員工資料:', currentEmployeeData);
-            console.log('👤 員工姓名:', currentEmployeeData.employeeName);
-            console.log('👤 員工姓名類型:', typeof currentEmployeeData.employeeName);
-            console.log('👤 員工姓名長度:', currentEmployeeData.employeeName ? currentEmployeeData.employeeName.length : 'undefined');
-            
-            // 顯示員工姓名
             document.getElementById('calcEmployeeName').value = data.employee.employeeName;
             
-            // 顯示員工薪資資訊
             const infoHtml = `
                 <div style="margin-top: 10px; line-height: 1.8;">
                     薪資: NT$ ${Number(data.employee.dailyWage).toLocaleString()} | 
@@ -156,7 +152,6 @@ async function loadEmployeeData() {
             showMessage('✅ 員工資料載入成功', 'success');
             
         } else {
-            console.error('❌ 載入失敗:', data);
             showMessage(`❌ ${data.message || '找不到該員工資料'}`, 'error');
             currentEmployeeData = null;
         }
@@ -168,20 +163,24 @@ async function loadEmployeeData() {
     }
 }
 
-// 儲存員工資料到 Google Sheets// 儲存員工資料到 Google Sheets
+// ============================================
+// ✅ 修正版：儲存員工資料到 Google Sheets
+// ============================================
+
 async function saveEmployeeData() {
+    // ✅ 確保所有欄位都有預設值
     const employeeData = {
         action: 'saveEmployee',
-        employeeId: document.getElementById('employeeId').value,
-        employeeName: document.getElementById('employeeName').value,
-        bloodType: document.getElementById('bloodType').value,
-        phone: document.getElementById('phone').value,
-        email: document.getElementById('email').value,
-        birthDate: document.getElementById('birthDate').value,
-        emergencyContact: document.getElementById('emergencyContact').value,        // ← 緊急聯絡人
-        emergencyPhone: document.getElementById('emergencyPhone').value,            // ← 緊急聯絡人電話
-        address: document.getElementById('address').value,                          // ← 通訊地址
-        dailyWage: parseFloat(document.getElementById('dailyWage').value) || 0,    // ← 基本薪資
+        employeeId: (document.getElementById('employeeId').value || '').trim(),
+        employeeName: (document.getElementById('employeeName').value || '').trim(),
+        bloodType: document.getElementById('bloodType').value || '',
+        phone: (document.getElementById('phone').value || '').trim(),
+        email: (document.getElementById('email').value || '').trim(),
+        birthDate: document.getElementById('birthDate').value || '',
+        emergencyContact: (document.getElementById('emergencyContact').value || '').trim(),
+        emergencyPhone: (document.getElementById('emergencyPhone').value || '').trim(),
+        address: (document.getElementById('address').value || '').trim(),
+        dailyWage: parseFloat(document.getElementById('dailyWage').value) || 0,
         overtimeWage: parseFloat(document.getElementById('overtimeWage').value) || 0,
         mealAllowance: parseFloat(document.getElementById('mealAllowance').value) || 0,
         attendanceAllowance: parseFloat(document.getElementById('attendanceAllowance').value) || 0,
@@ -191,38 +190,66 @@ async function saveEmployeeData() {
         laborInsurance: parseFloat(document.getElementById('laborInsurance').value) || 0,
         healthInsurance: parseFloat(document.getElementById('healthInsurance').value) || 0,
         supplementaryHealthInsurance: parseFloat(document.getElementById('supplementaryHealthInsurance').value) || 0,
-        dependents: parseInt(document.getElementById('dependents').value) || 0,     // ← 眷屬人數
-        bankCode: document.getElementById('bankCode').value,
-        bankBranch: document.getElementById('bankBranch').value,
-        bankAccount: document.getElementById('bankAccount').value,
-        notes: document.getElementById('notes').value,
+        dependents: parseInt(document.getElementById('dependents').value) || 0,
+        bankCode: document.getElementById('bankCode').value || '',
+        bankBranch: (document.getElementById('bankBranch').value || '').trim(),
+        bankAccount: (document.getElementById('bankAccount').value || '').trim(),
+        notes: (document.getElementById('notes').value || '').trim(),
         timestamp: new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })
     };
 
     // 驗證必填欄位
-    if (!employeeData.employeeId || !employeeData.employeeName) {
-        showMessage('請填寫必填欄位（員工ID和姓名）', 'error');
+    if (!employeeData.employeeId) {
+        showMessage('❌ 請填寫員工ID', 'error');
+        document.getElementById('employeeId').focus();
         return;
     }
 
-    // 🔍 Debug: 顯示要送出的資料
-    console.log('📤 準備送出的員工資料:');
-    console.log('  員工ID:', employeeData.employeeId);
-    console.log('  員工姓名:', employeeData.employeeName);
-    console.log('  緊急聯絡人:', employeeData.emergencyContact);
-    console.log('  緊急聯絡人電話:', employeeData.emergencyPhone);
-    console.log('  通訊地址:', employeeData.address);
-    console.log('  基本薪資:', employeeData.dailyWage);
-    console.log('  加班時薪:', employeeData.overtimeWage);
-    console.log('  伙食津貼:', employeeData.mealAllowance);           // ← 新增
-    console.log('  開車津貼:', employeeData.attendanceAllowance);     // ← 新增
-    console.log('  職務津貼:', employeeData.jobAllowance);           // ← 新增
-    console.log('  租屋津貼:', employeeData.rentAllowance);          // ← 新增
-    console.log('  代付款:', employeeData.advanceAllowance);         // ← 新增
-    console.log('  勞保費:', employeeData.laborInsurance);           // ← 新增
-    console.log('  健保費:', employeeData.healthInsurance);          // ← 新增
-    console.log('  眷屬健保:', employeeData.supplementaryHealthInsurance); // ← 新增
-    console.log('  眷屬人數:', employeeData.dependents);            // ← 新增
+    if (!employeeData.employeeName) {
+        showMessage('❌ 請填寫員工姓名', 'error');
+        document.getElementById('employeeName').focus();
+        return;
+    }
+
+    // 驗證員工姓名不能是純數字
+    if (!isNaN(employeeData.employeeName)) {
+        showMessage('❌ 員工姓名不能是純數字，請輸入正確的姓名', 'error');
+        document.getElementById('employeeName').focus();
+        return;
+    }
+
+    // 詳細的 Console Debug
+    console.log('=== 準備送出員工資料 ===');
+    console.log('📋 完整資料 (JSON):');
+    console.log(JSON.stringify(employeeData, null, 2));
+    
+    console.log('\n📝 欄位檢查（按照 rowData 順序）:');
+    console.log('  [0] timestamp: "' + employeeData.timestamp + '"');
+    console.log('  [1] employeeId: "' + employeeData.employeeId + '"');
+    console.log('  [2] employeeName: "' + employeeData.employeeName + '"');
+    console.log('  [3] bloodType: "' + employeeData.bloodType + '"');
+    console.log('  [4] phone: "' + employeeData.phone + '"');
+    console.log('  [5] email: "' + employeeData.email + '"');
+    console.log('  [6] birthDate: "' + employeeData.birthDate + '"');
+    console.log('  [7] emergencyContact: "' + employeeData.emergencyContact + '"');
+    console.log('  [8] emergencyPhone: "' + employeeData.emergencyPhone + '"');
+    console.log('  [9] address: "' + employeeData.address + '"');
+    console.log('  [10] dailyWage: ' + employeeData.dailyWage);
+    console.log('  [11] overtimeWage: ' + employeeData.overtimeWage);
+    console.log('  [12] mealAllowance: ' + employeeData.mealAllowance);
+    console.log('  [13] attendanceAllowance: ' + employeeData.attendanceAllowance);
+    console.log('  [14] jobAllowance: ' + employeeData.jobAllowance);
+    console.log('  [15] rentAllowance: ' + employeeData.rentAllowance);
+    console.log('  [16] advanceAllowance: ' + employeeData.advanceAllowance);
+    console.log('  [17] laborInsurance: ' + employeeData.laborInsurance);
+    console.log('  [18] healthInsurance: ' + employeeData.healthInsurance);
+    console.log('  [19] supplementaryHealthInsurance: ' + employeeData.supplementaryHealthInsurance);
+    console.log('  [20] dependents: ' + employeeData.dependents);
+    console.log('  [21] bankCode: "' + employeeData.bankCode + '"');
+    console.log('  [22] bankBranch: "' + employeeData.bankBranch + '"');
+    console.log('  [23] bankAccount: "' + employeeData.bankAccount + '"');
+    console.log('  [24] notes: "' + employeeData.notes + '"');
+
     showMessage('正在儲存資料...', 'info');
 
     try {
@@ -235,6 +262,7 @@ async function saveEmployeeData() {
             body: JSON.stringify(employeeData)
         });
 
+        console.log('✅ 資料已送出');
         showMessage('✅ 員工資料已成功儲存到 Google 試算表！', 'success');
         
         setTimeout(() => {
@@ -244,27 +272,22 @@ async function saveEmployeeData() {
         }, 2000);
 
     } catch (error) {
-        console.error('錯誤:', error);
+        console.error('❌ 錯誤:', error);
         showMessage('❌ 儲存失敗，請檢查網路連線或聯絡管理員', 'error');
     }
 }
 
-// 計算薪資並儲存到 Google Sheets
 // 計算薪資並儲存到 Google Sheets
 async function calculateSalary() {
     const employeeId = document.getElementById('calcEmployeeId').value;
     const calcMonth = document.getElementById('calcMonth').value;
     const workDays = parseFloat(document.getElementById('workDays').value) || 0;
 
-    console.log('=== 開始計算薪資 ===');
-
-    // 驗證必填欄位
     if (!employeeId || !calcMonth) {
-        showMessage('請填寫必填欄位（員工ID和計算年月）', 'error');
+        showMessage('❌ 請填寫必填欄位（員工ID和計算年月）', 'error');
         return;
     }
     
-    // 檢查是否已載入員工資料
     if (!currentEmployeeData) {
         showMessage('❌ 請先選擇員工以載入薪資資料', 'error');
         return;
@@ -277,7 +300,6 @@ async function calculateSalary() {
 
     showMessage('正在計算薪資...', 'info');
 
-    // 收集計算資料 - 包含津貼和保險明細
     const calculationData = {
         action: 'calculateSalary',
         employeeId: String(employeeId),
@@ -290,39 +312,17 @@ async function calculateSalary() {
         proxy6hrDeduction: Number(parseFloat(document.getElementById('proxy6hrDeduction').value) || 0),
         otherDeduction: Number(parseFloat(document.getElementById('otherDeduction').value) || 0),
         fineShare: Number(parseFloat(document.getElementById('fineShare').value) || 0),
-        
-        // ⭐ 新增：從 currentEmployeeData 取得津貼和保險資料
-        dailyWage: Number(currentEmployeeData.dailyWage) || 0,
-        overtimeWage: Number(currentEmployeeData.overtimeWage) || 0,
-        mealAllowance: Number(currentEmployeeData.mealAllowance) || 0,
-        attendanceAllowance: Number(currentEmployeeData.attendanceAllowance) || 0,
-        jobAllowance: Number(currentEmployeeData.jobAllowance) || 0,
-        rentAllowance: Number(currentEmployeeData.rentAllowance) || 0,
-        advanceAllowance: Number(currentEmployeeData.advanceAllowance) || 0,
-        laborInsurance: Number(currentEmployeeData.laborInsurance) || 0,
-        healthInsurance: Number(currentEmployeeData.healthInsurance) || 0,
-        supplementaryHealthInsurance: Number(currentEmployeeData.supplementaryHealthInsurance) || 0,
-        
         timestamp: new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })
     };
 
-    console.log('📤 準備送出的計算資料:');
-    console.log(JSON.stringify(calculationData, null, 2));
-
     try {
-        // 本地計算結果顯示
         const result = calculateLocalSalary(calculationData);
         
         if (!result) {
-            console.error('❌ 本地計算失敗');
             return;
         }
         
-        console.log('✅ 本地計算完成');
         displayResult(result);
-        
-        // 發送資料到 Google Sheets
-        console.log('📡 發送資料到 Google Sheets...');
         
         const response = await fetch(SCRIPT_URL, {
             method: 'POST',
@@ -333,7 +333,6 @@ async function calculateSalary() {
             body: JSON.stringify(calculationData)
         });
         
-        console.log('✅ 資料已發送');
         showMessage('✅ 薪資計算完成並已儲存到 Google 試算表！', 'success');
 
     } catch (error) {
@@ -345,7 +344,6 @@ async function calculateSalary() {
 // 本地計算薪資（用於顯示）
 function calculateLocalSalary(data) {
     if (!currentEmployeeData) {
-        console.error('❌ calculateLocalSalary: currentEmployeeData 是 null');
         showMessage('❌ 請先選擇員工', 'error');
         return null;
     }
@@ -425,7 +423,6 @@ function displayResult(result) {
     document.getElementById('resultNetSalary').textContent = `NT$ ${result.netSalary.toLocaleString()}`;
     
     document.getElementById('resultSection').style.display = 'block';
-    
     document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
@@ -455,6 +452,8 @@ function clearEmployeeForm() {
     document.getElementById('bankBranch').value = '';
     document.getElementById('bankAccount').value = '';
     document.getElementById('notes').value = '';
+    
+    document.getElementById('employeeId').focus();
 }
 
 // 顯示訊息
@@ -476,17 +475,6 @@ function showMessage(message, type) {
         }, 3000);
     }
 }
-
-// 頁面載入時的初始化
-document.addEventListener('DOMContentLoaded', function() {
-    const today = new Date();
-    const currentMonth = today.toISOString().slice(0, 7);
-    document.getElementById('calcMonth').value = currentMonth;
-
-    if (SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
-        showMessage('⚠️ 請先在 script.js 中設定您的 Google Apps Script Web App URL', 'error');
-    }
-});
 
 // 新增資訊訊息的 CSS
 const style = document.createElement('style');
