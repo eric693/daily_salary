@@ -102,17 +102,20 @@ async function loadEmployeeList() {
     }
 }
 
-// ============================================
-// ✅ 修正版：當選擇員工時，載入該員工的資料並顯示津貼與勞健保
-// ============================================
+// 當選擇員工時，載入該員工的資料
 async function loadEmployeeData() {
     const employeeId = document.getElementById('calcEmployeeId').value;
     
     if (!employeeId) {
         document.getElementById('calcEmployeeName').value = '';
         document.getElementById('employeeInfoBox').style.display = 'none';
-        document.getElementById('allowanceInfoBox').style.display = 'none';
-        document.getElementById('insuranceInfoBox').style.display = 'none';
+        // 隱藏新增的區塊
+        if (document.getElementById('allowanceInfoBox')) {
+            document.getElementById('allowanceInfoBox').style.display = 'none';
+        }
+        if (document.getElementById('insuranceInfoBox')) {
+            document.getElementById('insuranceInfoBox').style.display = 'none';
+        }
         currentEmployeeData = null;
         return;
     }
@@ -135,7 +138,6 @@ async function loadEmployeeData() {
             
             document.getElementById('calcEmployeeName').value = data.employee.employeeName;
             
-            // 基本薪資資訊
             const infoHtml = `
                 <div style="margin-top: 10px; line-height: 1.8;">
                     薪資: NT$ ${Number(data.employee.dailyWage).toLocaleString()} | 
@@ -146,28 +148,32 @@ async function loadEmployeeData() {
             document.getElementById('employeeInfo').innerHTML = infoHtml;
             document.getElementById('employeeInfoBox').style.display = 'flex';
             
-            // ⭐ 顯示加項津貼明細
-            const allowanceHtml = `
-                <div>
-                    開車津貼: <strong>NT$ ${Number(data.employee.attendanceAllowance).toLocaleString()}</strong> | 
-                    職務津貼: <strong>NT$ ${Number(data.employee.jobAllowance).toLocaleString()}</strong> | 
-                    租屋津貼: <strong>NT$ ${Number(data.employee.rentAllowance).toLocaleString()}</strong> | 
-                    代付款: <strong>NT$ ${Number(data.employee.advanceAllowance).toLocaleString()}</strong>
-                </div>
-            `;
-            document.getElementById('allowanceInfo').innerHTML = allowanceHtml;
-            document.getElementById('allowanceInfoBox').style.display = 'flex';
+            // 顯示加項津貼明細（如果有這個元素）
+            if (document.getElementById('allowanceInfoBox')) {
+                const allowanceHtml = `
+                    <div>
+                        開車津貼: <strong>NT$ ${Number(data.employee.attendanceAllowance || 0).toLocaleString()}</strong> | 
+                        職務津貼: <strong>NT$ ${Number(data.employee.jobAllowance || 0).toLocaleString()}</strong> | 
+                        租屋津貼: <strong>NT$ ${Number(data.employee.rentAllowance || 0).toLocaleString()}</strong> | 
+                        代付款: <strong>NT$ ${Number(data.employee.advanceAllowance || 0).toLocaleString()}</strong>
+                    </div>
+                `;
+                document.getElementById('allowanceInfo').innerHTML = allowanceHtml;
+                document.getElementById('allowanceInfoBox').style.display = 'flex';
+            }
             
-            // ⭐ 顯示勞健保扣款明細
-            const insuranceHtml = `
-                <div>
-                    勞保費: <strong>NT$ ${Number(data.employee.laborInsurance).toLocaleString()}</strong> | 
-                    健保費: <strong>NT$ ${Number(data.employee.healthInsurance).toLocaleString()}</strong> | 
-                    眷屬健保: <strong>NT$ ${Number(data.employee.supplementaryHealthInsurance).toLocaleString()}</strong>
-                </div>
-            `;
-            document.getElementById('insuranceInfo').innerHTML = insuranceHtml;
-            document.getElementById('insuranceInfoBox').style.display = 'flex';
+            // 顯示勞健保扣款明細（如果有這個元素）
+            if (document.getElementById('insuranceInfoBox')) {
+                const insuranceHtml = `
+                    <div>
+                        勞保費: <strong>NT$ ${Number(data.employee.laborInsurance || 0).toLocaleString()}</strong> | 
+                        健保費: <strong>NT$ ${Number(data.employee.healthInsurance || 0).toLocaleString()}</strong> | 
+                        眷屬健保: <strong>NT$ ${Number(data.employee.supplementaryHealthInsurance || 0).toLocaleString()}</strong>
+                    </div>
+                `;
+                document.getElementById('insuranceInfo').innerHTML = insuranceHtml;
+                document.getElementById('insuranceInfoBox').style.display = 'flex';
+            }
             
             const infoMessages = document.querySelectorAll('.info-message');
             infoMessages.forEach(msg => msg.remove());
@@ -187,7 +193,7 @@ async function loadEmployeeData() {
 }
 
 // ============================================
-// ✅ 儲存員工資料到 Google Sheets
+// ✅ 儲存員工資料到 Google Sheets（完全使用原始邏輯）
 // ============================================
 
 async function saveEmployeeData() {
@@ -252,14 +258,21 @@ async function saveEmployeeData() {
             body: formData
         });
 
-        console.log('✅ 資料已送出');
-        showMessage('✅ 員工資料已成功儲存到 Google 試算表！', 'success');
+        const result = await response.json();
         
-        setTimeout(() => {
-            if (confirm('是否要清除表單以新增下一位員工？')) {
-                clearEmployeeForm();
-            }
-        }, 2000);
+        console.log('✅ 伺服器回應:', result);
+        
+        if (result.status === 'success') {
+            showMessage('✅ 員工資料已成功儲存到 Google 試算表！', 'success');
+            
+            setTimeout(() => {
+                if (confirm('是否要清除表單以新增下一位員工？')) {
+                    clearEmployeeForm();
+                }
+            }, 2000);
+        } else {
+            showMessage('❌ 儲存失敗: ' + (result.message || '未知錯誤'), 'error');
+        }
 
     } catch (error) {
         console.error('❌ 錯誤:', error);
@@ -268,7 +281,7 @@ async function saveEmployeeData() {
 }
 
 // ============================================
-// ✅ 完全修正版：計算薪資並儲存 - 包含津貼和保險明細
+// ✅ 完全使用原始版本的計算薪資邏輯
 // ============================================
 
 async function calculateSalary() {
@@ -295,7 +308,7 @@ async function calculateSalary() {
 
     showMessage('正在計算薪資...', 'info');
 
-    // ⭐ 關鍵修正：包含員工的津貼和保險資料
+    // 使用原始版本的資料結構
     const calculationData = {
         action: 'calculateSalary',
         employeeId: String(employeeId),
@@ -309,7 +322,7 @@ async function calculateSalary() {
         otherDeduction: Number(parseFloat(document.getElementById('otherDeduction').value) || 0),
         fineShare: Number(parseFloat(document.getElementById('fineShare').value) || 0),
         
-        // ⭐⭐⭐ 從 currentEmployeeData 取得完整的員工薪資資料
+        // 傳送完整的員工薪資資料
         dailyWage: Number(currentEmployeeData.dailyWage) || 0,
         overtimeWage: Number(currentEmployeeData.overtimeWage) || 0,
         mealAllowance: Number(currentEmployeeData.mealAllowance) || 0,
@@ -326,18 +339,6 @@ async function calculateSalary() {
 
     console.log('📤 準備送出的完整計算資料:');
     console.log(JSON.stringify(calculationData, null, 2));
-    
-    console.log('\n✅ 確認包含的員工薪資資料:');
-    console.log('   基本薪資:', calculationData.dailyWage);
-    console.log('   加班時薪:', calculationData.overtimeWage);
-    console.log('   伙食津貼:', calculationData.mealAllowance);
-    console.log('   開車津貼:', calculationData.attendanceAllowance);
-    console.log('   職務津貼:', calculationData.jobAllowance);
-    console.log('   租屋津貼:', calculationData.rentAllowance);
-    console.log('   代付款:', calculationData.advanceAllowance);
-    console.log('   勞保費:', calculationData.laborInsurance);
-    console.log('   健保費:', calculationData.healthInsurance);
-    console.log('   眷屬健保:', calculationData.supplementaryHealthInsurance);
 
     try {
         // 本地計算結果顯示
@@ -358,8 +359,15 @@ async function calculateSalary() {
             body: formData
         });
         
-        console.log('✅ 資料已發送到 Google Sheets');
-        showMessage('✅ 薪資計算完成並已儲存到 Google 試算表！', 'success');
+        const serverResult = await response.json();
+        
+        console.log('✅ 伺服器回應:', serverResult);
+        
+        if (serverResult.status === 'success') {
+            showMessage('✅ 薪資計算完成並已儲存到 Google 試算表！', 'success');
+        } else {
+            showMessage('❌ 儲存失敗: ' + (serverResult.message || '未知錯誤'), 'error');
+        }
 
     } catch (error) {
         console.error('❌ 錯誤:', error);
@@ -377,13 +385,13 @@ function calculateLocalSalary(data) {
     const dailyWage = currentEmployeeData.dailyWage;
     const overtimeWage = currentEmployeeData.overtimeWage;
     const mealAllowance = currentEmployeeData.mealAllowance;
-    const attendanceAllowance = currentEmployeeData.attendanceAllowance;
-    const jobAllowance = currentEmployeeData.jobAllowance;
-    const rentAllowance = currentEmployeeData.rentAllowance;
-    const advanceAllowance = currentEmployeeData.advanceAllowance;
-    const laborInsurance = currentEmployeeData.laborInsurance;
-    const healthInsurance = currentEmployeeData.healthInsurance;
-    const supplementaryHealthInsurance = currentEmployeeData.supplementaryHealthInsurance;
+    const attendanceAllowance = currentEmployeeData.attendanceAllowance || 0;
+    const jobAllowance = currentEmployeeData.jobAllowance || 0;
+    const rentAllowance = currentEmployeeData.rentAllowance || 0;
+    const advanceAllowance = currentEmployeeData.advanceAllowance || 0;
+    const laborInsurance = currentEmployeeData.laborInsurance || 0;
+    const healthInsurance = currentEmployeeData.healthInsurance || 0;
+    const supplementaryHealthInsurance = currentEmployeeData.supplementaryHealthInsurance || 0;
 
     const basicSalary = dailyWage * data.workDays;
     const overtimePay = overtimeWage * data.overtimeHours;
