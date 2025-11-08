@@ -223,23 +223,19 @@ async function saveEmployeeData() {
     showMessage('正在儲存資料...', 'info');
 
     try {
-        const formData = new URLSearchParams();
-        formData.append('data', JSON.stringify(employeeData));
-        
-        console.log('📤 FormData 內容:', formData.toString().substring(0, 200) + '...');
+        // 使用 URLSearchParams 並轉換為字串
+        const params = new URLSearchParams();
+        params.append('data', JSON.stringify(employeeData));
         
         const response = await fetch(SCRIPT_URL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: formData.toString()
+            body: params
         });
 
         console.log('📥 收到回應，狀態:', response.status);
         
         const responseText = await response.text();
-        console.log('📥 回應內容:', responseText.substring(0, 200));
+        console.log('📥 回應內容:', responseText);
         
         const responseData = JSON.parse(responseText);
         
@@ -346,23 +342,18 @@ async function calculateSalary() {
         displayResult(result);
         
         // 發送完整資料到 Google Sheets
-        const formData = new URLSearchParams();
-        formData.append('data', JSON.stringify(calculationData));
-        
-        console.log('📤 FormData 內容:', formData.toString().substring(0, 200) + '...');
+        const params = new URLSearchParams();
+        params.append('data', JSON.stringify(calculationData));
         
         const response = await fetch(SCRIPT_URL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: formData.toString()
+            body: params
         });
         
         console.log('📥 收到回應，狀態:', response.status);
         
         const responseText = await response.text();
-        console.log('📥 回應內容:', responseText.substring(0, 200));
+        console.log('📥 回應內容:', responseText);
         
         const responseData = JSON.parse(responseText);
         
