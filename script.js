@@ -226,12 +226,22 @@ async function saveEmployeeData() {
         const formData = new URLSearchParams();
         formData.append('data', JSON.stringify(employeeData));
         
+        console.log('📤 FormData 內容:', formData.toString().substring(0, 200) + '...');
+        
         const response = await fetch(SCRIPT_URL, {
             method: 'POST',
-            body: formData
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: formData.toString()
         });
 
-        const responseData = await response.json();
+        console.log('📥 收到回應，狀態:', response.status);
+        
+        const responseText = await response.text();
+        console.log('📥 回應內容:', responseText.substring(0, 200));
+        
+        const responseData = JSON.parse(responseText);
         
         if (responseData.status === 'success') {
             console.log('✅ 資料已成功儲存');
@@ -339,12 +349,22 @@ async function calculateSalary() {
         const formData = new URLSearchParams();
         formData.append('data', JSON.stringify(calculationData));
         
+        console.log('📤 FormData 內容:', formData.toString().substring(0, 200) + '...');
+        
         const response = await fetch(SCRIPT_URL, {
             method: 'POST',
-            body: formData
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: formData.toString()
         });
         
-        const responseData = await response.json();
+        console.log('📥 收到回應，狀態:', response.status);
+        
+        const responseText = await response.text();
+        console.log('📥 回應內容:', responseText.substring(0, 200));
+        
+        const responseData = JSON.parse(responseText);
         
         if (responseData.status === 'success') {
             console.log('✅ 資料已成功儲存到 Google Sheets，第 ' + responseData.row + ' 行');
