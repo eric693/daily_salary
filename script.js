@@ -127,6 +127,8 @@ async function loadEmployeeData() {
         if (data.status === 'success' && data.employee) {
             currentEmployeeData = data.employee;
             
+            console.log('✅ 載入的員工資料:', currentEmployeeData);
+            
             document.getElementById('calcEmployeeName').value = data.employee.employeeName;
             
             const infoHtml = `
@@ -168,7 +170,6 @@ async function loadEmployeeData() {
 // ============================================
 
 async function saveEmployeeData() {
-    // ✅ 確保所有欄位都有預設值
     const employeeData = {
         action: 'saveEmployee',
         employeeId: (document.getElementById('employeeId').value || '').trim(),
@@ -198,7 +199,6 @@ async function saveEmployeeData() {
         timestamp: new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })
     };
 
-    // 驗證必填欄位
     if (!employeeData.employeeId) {
         showMessage('❌ 請填寫員工ID', 'error');
         document.getElementById('employeeId').focus();
@@ -211,44 +211,14 @@ async function saveEmployeeData() {
         return;
     }
 
-    // 驗證員工姓名不能是純數字
     if (!isNaN(employeeData.employeeName)) {
         showMessage('❌ 員工姓名不能是純數字，請輸入正確的姓名', 'error');
         document.getElementById('employeeName').focus();
         return;
     }
 
-    // 詳細的 Console Debug
     console.log('=== 準備送出員工資料 ===');
-    console.log('📋 完整資料 (JSON):');
     console.log(JSON.stringify(employeeData, null, 2));
-    
-    console.log('\n📝 欄位檢查（按照 rowData 順序）:');
-    console.log('  [0] timestamp: "' + employeeData.timestamp + '"');
-    console.log('  [1] employeeId: "' + employeeData.employeeId + '"');
-    console.log('  [2] employeeName: "' + employeeData.employeeName + '"');
-    console.log('  [3] bloodType: "' + employeeData.bloodType + '"');
-    console.log('  [4] phone: "' + employeeData.phone + '"');
-    console.log('  [5] email: "' + employeeData.email + '"');
-    console.log('  [6] birthDate: "' + employeeData.birthDate + '"');
-    console.log('  [7] emergencyContact: "' + employeeData.emergencyContact + '"');
-    console.log('  [8] emergencyPhone: "' + employeeData.emergencyPhone + '"');
-    console.log('  [9] address: "' + employeeData.address + '"');
-    console.log('  [10] dailyWage: ' + employeeData.dailyWage);
-    console.log('  [11] overtimeWage: ' + employeeData.overtimeWage);
-    console.log('  [12] mealAllowance: ' + employeeData.mealAllowance);
-    console.log('  [13] attendanceAllowance: ' + employeeData.attendanceAllowance);
-    console.log('  [14] jobAllowance: ' + employeeData.jobAllowance);
-    console.log('  [15] rentAllowance: ' + employeeData.rentAllowance);
-    console.log('  [16] advanceAllowance: ' + employeeData.advanceAllowance);
-    console.log('  [17] laborInsurance: ' + employeeData.laborInsurance);
-    console.log('  [18] healthInsurance: ' + employeeData.healthInsurance);
-    console.log('  [19] supplementaryHealthInsurance: ' + employeeData.supplementaryHealthInsurance);
-    console.log('  [20] dependents: ' + employeeData.dependents);
-    console.log('  [21] bankCode: "' + employeeData.bankCode + '"');
-    console.log('  [22] bankBranch: "' + employeeData.bankBranch + '"');
-    console.log('  [23] bankAccount: "' + employeeData.bankAccount + '"');
-    console.log('  [24] notes: "' + employeeData.notes + '"');
 
     showMessage('正在儲存資料...', 'info');
 
@@ -277,11 +247,16 @@ async function saveEmployeeData() {
     }
 }
 
-// 計算薪資並儲存到 Google Sheets
+// ============================================
+// ✅ 完全修正版：計算薪資並儲存 - 包含津貼和保險明細
+// ============================================
+
 async function calculateSalary() {
     const employeeId = document.getElementById('calcEmployeeId').value;
     const calcMonth = document.getElementById('calcMonth').value;
     const workDays = parseFloat(document.getElementById('workDays').value) || 0;
+
+    console.log('=== 開始計算薪資 ===');
 
     if (!employeeId || !calcMonth) {
         showMessage('❌ 請填寫必填欄位（員工ID和計算年月）', 'error');
@@ -300,6 +275,7 @@ async function calculateSalary() {
 
     showMessage('正在計算薪資...', 'info');
 
+    // ⭐ 關鍵修正：包含員工的津貼和保險資料
     const calculationData = {
         action: 'calculateSalary',
         employeeId: String(employeeId),
@@ -312,10 +288,39 @@ async function calculateSalary() {
         proxy6hrDeduction: Number(parseFloat(document.getElementById('proxy6hrDeduction').value) || 0),
         otherDeduction: Number(parseFloat(document.getElementById('otherDeduction').value) || 0),
         fineShare: Number(parseFloat(document.getElementById('fineShare').value) || 0),
+        
+        // ⭐⭐⭐ 新增：從 currentEmployeeData 取得完整的員工薪資資料
+        dailyWage: Number(currentEmployeeData.dailyWage) || 0,
+        overtimeWage: Number(currentEmployeeData.overtimeWage) || 0,
+        mealAllowance: Number(currentEmployeeData.mealAllowance) || 0,
+        attendanceAllowance: Number(currentEmployeeData.attendanceAllowance) || 0,
+        jobAllowance: Number(currentEmployeeData.jobAllowance) || 0,
+        rentAllowance: Number(currentEmployeeData.rentAllowance) || 0,
+        advanceAllowance: Number(currentEmployeeData.advanceAllowance) || 0,
+        laborInsurance: Number(currentEmployeeData.laborInsurance) || 0,
+        healthInsurance: Number(currentEmployeeData.healthInsurance) || 0,
+        supplementaryHealthInsurance: Number(currentEmployeeData.supplementaryHealthInsurance) || 0,
+        
         timestamp: new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })
     };
 
+    console.log('📤 準備送出的完整計算資料:');
+    console.log(JSON.stringify(calculationData, null, 2));
+    
+    console.log('\n✅ 確認包含的員工薪資資料:');
+    console.log('   基本薪資:', calculationData.dailyWage);
+    console.log('   加班時薪:', calculationData.overtimeWage);
+    console.log('   伙食津貼:', calculationData.mealAllowance);
+    console.log('   開車津貼:', calculationData.attendanceAllowance);
+    console.log('   職務津貼:', calculationData.jobAllowance);
+    console.log('   租屋津貼:', calculationData.rentAllowance);
+    console.log('   代付款:', calculationData.advanceAllowance);
+    console.log('   勞保費:', calculationData.laborInsurance);
+    console.log('   健保費:', calculationData.healthInsurance);
+    console.log('   眷屬健保:', calculationData.supplementaryHealthInsurance);
+
     try {
+        // 本地計算結果顯示
         const result = calculateLocalSalary(calculationData);
         
         if (!result) {
@@ -324,6 +329,7 @@ async function calculateSalary() {
         
         displayResult(result);
         
+        // 發送完整資料到 Google Sheets
         const response = await fetch(SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
@@ -333,6 +339,7 @@ async function calculateSalary() {
             body: JSON.stringify(calculationData)
         });
         
+        console.log('✅ 資料已發送到 Google Sheets');
         showMessage('✅ 薪資計算完成並已儲存到 Google 試算表！', 'success');
 
     } catch (error) {
