@@ -102,13 +102,17 @@ async function loadEmployeeList() {
     }
 }
 
-// 當選擇員工時，載入該員工的資料
+// ============================================
+// ✅ 修正版：當選擇員工時，載入該員工的資料並顯示津貼與勞健保
+// ============================================
 async function loadEmployeeData() {
     const employeeId = document.getElementById('calcEmployeeId').value;
     
     if (!employeeId) {
         document.getElementById('calcEmployeeName').value = '';
         document.getElementById('employeeInfoBox').style.display = 'none';
+        document.getElementById('allowanceInfoBox').style.display = 'none';
+        document.getElementById('insuranceInfoBox').style.display = 'none';
         currentEmployeeData = null;
         return;
     }
@@ -131,22 +135,39 @@ async function loadEmployeeData() {
             
             document.getElementById('calcEmployeeName').value = data.employee.employeeName;
             
+            // 基本薪資資訊
             const infoHtml = `
                 <div style="margin-top: 10px; line-height: 1.8;">
                     薪資: NT$ ${Number(data.employee.dailyWage).toLocaleString()} | 
                     加班時薪: NT$ ${Number(data.employee.overtimeWage).toLocaleString()} | 
-                    伙食津貼: NT$ ${Number(data.employee.mealAllowance).toLocaleString()}/天<br>
-                    開車津貼: NT$ ${Number(data.employee.attendanceAllowance).toLocaleString()} | 
-                    職務津貼: NT$ ${Number(data.employee.jobAllowance).toLocaleString()} | 
-                    租屋津貼: NT$ ${Number(data.employee.rentAllowance).toLocaleString()} | 
-                    代付款: NT$ ${Number(data.employee.advanceAllowance).toLocaleString()}<br>
-                    勞保費: NT$ ${Number(data.employee.laborInsurance).toLocaleString()} | 
-                    健保費: NT$ ${Number(data.employee.healthInsurance).toLocaleString()} | 
-                    眷屬健保: NT$ ${Number(data.employee.supplementaryHealthInsurance).toLocaleString()}
+                    伙食津貼: NT$ ${Number(data.employee.mealAllowance).toLocaleString()}/天
                 </div>
             `;
             document.getElementById('employeeInfo').innerHTML = infoHtml;
             document.getElementById('employeeInfoBox').style.display = 'flex';
+            
+            // ⭐ 顯示加項津貼明細
+            const allowanceHtml = `
+                <div>
+                    開車津貼: <strong>NT$ ${Number(data.employee.attendanceAllowance).toLocaleString()}</strong> | 
+                    職務津貼: <strong>NT$ ${Number(data.employee.jobAllowance).toLocaleString()}</strong> | 
+                    租屋津貼: <strong>NT$ ${Number(data.employee.rentAllowance).toLocaleString()}</strong> | 
+                    代付款: <strong>NT$ ${Number(data.employee.advanceAllowance).toLocaleString()}</strong>
+                </div>
+            `;
+            document.getElementById('allowanceInfo').innerHTML = allowanceHtml;
+            document.getElementById('allowanceInfoBox').style.display = 'flex';
+            
+            // ⭐ 顯示勞健保扣款明細
+            const insuranceHtml = `
+                <div>
+                    勞保費: <strong>NT$ ${Number(data.employee.laborInsurance).toLocaleString()}</strong> | 
+                    健保費: <strong>NT$ ${Number(data.employee.healthInsurance).toLocaleString()}</strong> | 
+                    眷屬健保: <strong>NT$ ${Number(data.employee.supplementaryHealthInsurance).toLocaleString()}</strong>
+                </div>
+            `;
+            document.getElementById('insuranceInfo').innerHTML = insuranceHtml;
+            document.getElementById('insuranceInfoBox').style.display = 'flex';
             
             const infoMessages = document.querySelectorAll('.info-message');
             infoMessages.forEach(msg => msg.remove());
@@ -166,7 +187,7 @@ async function loadEmployeeData() {
 }
 
 // ============================================
-// ✅ 修正版：儲存員工資料到 Google Sheets
+// ✅ 儲存員工資料到 Google Sheets
 // ============================================
 
 async function saveEmployeeData() {
@@ -288,7 +309,7 @@ async function calculateSalary() {
         otherDeduction: Number(parseFloat(document.getElementById('otherDeduction').value) || 0),
         fineShare: Number(parseFloat(document.getElementById('fineShare').value) || 0),
         
-        // ⭐⭐⭐ 新增：從 currentEmployeeData 取得完整的員工薪資資料
+        // ⭐⭐⭐ 從 currentEmployeeData 取得完整的員工薪資資料
         dailyWage: Number(currentEmployeeData.dailyWage) || 0,
         overtimeWage: Number(currentEmployeeData.overtimeWage) || 0,
         mealAllowance: Number(currentEmployeeData.mealAllowance) || 0,
