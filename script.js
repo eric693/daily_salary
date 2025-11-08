@@ -231,14 +231,21 @@ async function saveEmployeeData() {
             body: formData
         });
 
-        console.log('✅ 資料已送出');
-        showMessage('✅ 員工資料已成功儲存到 Google 試算表！', 'success');
+        const responseData = await response.json();
         
-        setTimeout(() => {
-            if (confirm('是否要清除表單以新增下一位員工？')) {
-                clearEmployeeForm();
-            }
-        }, 2000);
+        if (responseData.status === 'success') {
+            console.log('✅ 資料已成功儲存');
+            showMessage('✅ 員工資料已成功儲存到 Google 試算表！', 'success');
+            
+            setTimeout(() => {
+                if (confirm('是否要清除表單以新增下一位員工？')) {
+                    clearEmployeeForm();
+                }
+            }, 2000);
+        } else {
+            console.error('❌ 後端回傳錯誤:', responseData.message);
+            showMessage('❌ 儲存失敗: ' + responseData.message, 'error');
+        }
 
     } catch (error) {
         console.error('❌ 錯誤:', error);
@@ -337,8 +344,15 @@ async function calculateSalary() {
             body: formData
         });
         
-        console.log('✅ 資料已發送到 Google Sheets');
-        showMessage('✅ 薪資計算完成並已儲存到 Google 試算表！', 'success');
+        const responseData = await response.json();
+        
+        if (responseData.status === 'success') {
+            console.log('✅ 資料已成功儲存到 Google Sheets，第 ' + responseData.row + ' 行');
+            showMessage('✅ 薪資計算完成並已儲存到 Google 試算表！', 'success');
+        } else {
+            console.error('❌ 後端回傳錯誤:', responseData.message);
+            showMessage('⚠️ 薪資已計算完成，但儲存時發生錯誤: ' + responseData.message, 'error');
+        }
 
     } catch (error) {
         console.error('❌ 錯誤:', error);
