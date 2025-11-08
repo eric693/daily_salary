@@ -250,16 +250,13 @@ async function saveEmployeeData() {
 }
 
 // 計算薪資並儲存到 Google Sheets
+// 計算薪資並儲存到 Google Sheets
 async function calculateSalary() {
     const employeeId = document.getElementById('calcEmployeeId').value;
     const calcMonth = document.getElementById('calcMonth').value;
     const workDays = parseFloat(document.getElementById('workDays').value) || 0;
 
     console.log('=== 開始計算薪資 ===');
-    console.log('📋 表單資料:');
-    console.log('  員工ID:', employeeId);
-    console.log('  計算年月:', calcMonth);
-    console.log('  上班天數:', workDays);
 
     // 驗證必填欄位
     if (!employeeId || !calcMonth) {
@@ -269,32 +266,22 @@ async function calculateSalary() {
     
     // 檢查是否已載入員工資料
     if (!currentEmployeeData) {
-        console.error('❌ currentEmployeeData 是 null 或 undefined');
         showMessage('❌ 請先選擇員工以載入薪資資料', 'error');
         return;
     }
 
-    console.log('✅ currentEmployeeData 存在');
-    console.log('📦 完整員工資料:', JSON.stringify(currentEmployeeData, null, 2));
-
-    // 特別檢查員工姓名
     if (!currentEmployeeData.employeeName) {
-        console.error('❌ 警告: currentEmployeeData.employeeName 是空的!');
-        console.error('   employeeName 值:', currentEmployeeData.employeeName);
-        console.error('   employeeName 類型:', typeof currentEmployeeData.employeeName);
         showMessage('❌ 錯誤: 員工姓名資料遺失，請重新選擇員工', 'error');
         return;
     }
 
-    console.log('✅ 員工姓名確認存在:', currentEmployeeData.employeeName);
-
     showMessage('正在計算薪資...', 'info');
 
-    // 收集計算資料 - 確保每個欄位都有值
+    // 收集計算資料 - 包含津貼和保險明細
     const calculationData = {
         action: 'calculateSalary',
         employeeId: String(employeeId),
-        employeeName: String(currentEmployeeData.employeeName),  // 明確轉換為字串
+        employeeName: String(currentEmployeeData.employeeName),
         calcMonth: String(calcMonth),
         workDays: Number(workDays),
         overtimeHours: Number(parseFloat(document.getElementById('overtimeHours').value) || 0),
@@ -303,17 +290,24 @@ async function calculateSalary() {
         proxy6hrDeduction: Number(parseFloat(document.getElementById('proxy6hrDeduction').value) || 0),
         otherDeduction: Number(parseFloat(document.getElementById('otherDeduction').value) || 0),
         fineShare: Number(parseFloat(document.getElementById('fineShare').value) || 0),
+        
+        // ⭐ 新增：從 currentEmployeeData 取得津貼和保險資料
+        dailyWage: Number(currentEmployeeData.dailyWage) || 0,
+        overtimeWage: Number(currentEmployeeData.overtimeWage) || 0,
+        mealAllowance: Number(currentEmployeeData.mealAllowance) || 0,
+        attendanceAllowance: Number(currentEmployeeData.attendanceAllowance) || 0,
+        jobAllowance: Number(currentEmployeeData.jobAllowance) || 0,
+        rentAllowance: Number(currentEmployeeData.rentAllowance) || 0,
+        advanceAllowance: Number(currentEmployeeData.advanceAllowance) || 0,
+        laborInsurance: Number(currentEmployeeData.laborInsurance) || 0,
+        healthInsurance: Number(currentEmployeeData.healthInsurance) || 0,
+        supplementaryHealthInsurance: Number(currentEmployeeData.supplementaryHealthInsurance) || 0,
+        
         timestamp: new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })
     };
 
     console.log('📤 準備送出的計算資料:');
     console.log(JSON.stringify(calculationData, null, 2));
-    
-    // 再次確認關鍵欄位
-    console.log('🔍 關鍵欄位檢查:');
-    console.log('  employeeId:', calculationData.employeeId, '(類型:', typeof calculationData.employeeId + ')');
-    console.log('  employeeName:', calculationData.employeeName, '(類型:', typeof calculationData.employeeName + ')');
-    console.log('  employeeName 長度:', calculationData.employeeName.length);
 
     try {
         // 本地計算結果顯示
@@ -329,8 +323,6 @@ async function calculateSalary() {
         
         // 發送資料到 Google Sheets
         console.log('📡 發送資料到 Google Sheets...');
-        console.log('📡 URL:', SCRIPT_URL);
-        console.log('📡 資料:', JSON.stringify(calculationData));
         
         const response = await fetch(SCRIPT_URL, {
             method: 'POST',
@@ -346,7 +338,6 @@ async function calculateSalary() {
 
     } catch (error) {
         console.error('❌ 錯誤:', error);
-        console.error('❌ 錯誤堆疊:', error.stack);
         showMessage('❌ 計算失敗，請檢查網路連線或聯絡管理員', 'error');
     }
 }
