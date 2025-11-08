@@ -168,7 +168,7 @@ async function loadEmployeeData() {
     }
 }
 
-// 儲存員工資料到 Google Sheets
+// 儲存員工資料到 Google Sheets// 儲存員工資料到 Google Sheets
 async function saveEmployeeData() {
     const employeeData = {
         action: 'saveEmployee',
@@ -178,11 +178,10 @@ async function saveEmployeeData() {
         phone: document.getElementById('phone').value,
         email: document.getElementById('email').value,
         birthDate: document.getElementById('birthDate').value,
-        dependents: parseInt(document.getElementById('dependents').value) || 0,
-        emergencyContact: document.getElementById('emergencyContact').value,
-        emergencyPhone: document.getElementById('emergencyPhone').value,
-        address: document.getElementById('address').value,
-        dailyWage: parseFloat(document.getElementById('dailyWage').value) || 0,
+        emergencyContact: document.getElementById('emergencyContact').value,        // ← 緊急聯絡人
+        emergencyPhone: document.getElementById('emergencyPhone').value,            // ← 緊急聯絡人電話
+        address: document.getElementById('address').value,                          // ← 通訊地址
+        dailyWage: parseFloat(document.getElementById('dailyWage').value) || 0,    // ← 基本薪資
         overtimeWage: parseFloat(document.getElementById('overtimeWage').value) || 0,
         mealAllowance: parseFloat(document.getElementById('mealAllowance').value) || 0,
         attendanceAllowance: parseFloat(document.getElementById('attendanceAllowance').value) || 0,
@@ -192,6 +191,7 @@ async function saveEmployeeData() {
         laborInsurance: parseFloat(document.getElementById('laborInsurance').value) || 0,
         healthInsurance: parseFloat(document.getElementById('healthInsurance').value) || 0,
         supplementaryHealthInsurance: parseFloat(document.getElementById('supplementaryHealthInsurance').value) || 0,
+        dependents: parseInt(document.getElementById('dependents').value) || 0,     // ← 眷屬人數
         bankCode: document.getElementById('bankCode').value,
         bankBranch: document.getElementById('bankBranch').value,
         bankAccount: document.getElementById('bankAccount').value,
@@ -199,10 +199,21 @@ async function saveEmployeeData() {
         timestamp: new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })
     };
 
+    // 驗證必填欄位
     if (!employeeData.employeeId || !employeeData.employeeName) {
         showMessage('請填寫必填欄位（員工ID和姓名）', 'error');
         return;
     }
+
+    // 🔍 Debug: 顯示要送出的資料
+    console.log('📤 準備送出的員工資料:');
+    console.log('  員工ID:', employeeData.employeeId);
+    console.log('  員工姓名:', employeeData.employeeName);
+    console.log('  緊急聯絡人:', employeeData.emergencyContact);
+    console.log('  緊急聯絡人電話:', employeeData.emergencyPhone);
+    console.log('  通訊地址:', employeeData.address);
+    console.log('  基本薪資:', employeeData.dailyWage);
+    console.log('  加班時薪:', employeeData.overtimeWage);
 
     showMessage('正在儲存資料...', 'info');
 
