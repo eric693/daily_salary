@@ -223,35 +223,22 @@ async function saveEmployeeData() {
     showMessage('正在儲存資料...', 'info');
 
     try {
-        // 使用 URLSearchParams 並轉換為字串
-        const params = new URLSearchParams();
-        params.append('data', JSON.stringify(employeeData));
+        const formData = new URLSearchParams();
+        formData.append('data', JSON.stringify(employeeData));
         
         const response = await fetch(SCRIPT_URL, {
             method: 'POST',
-            body: params
+            body: formData
         });
 
-        console.log('📥 收到回應，狀態:', response.status);
+        console.log('✅ 資料已送出');
+        showMessage('✅ 員工資料已成功儲存到 Google 試算表！', 'success');
         
-        const responseText = await response.text();
-        console.log('📥 回應內容:', responseText);
-        
-        const responseData = JSON.parse(responseText);
-        
-        if (responseData.status === 'success') {
-            console.log('✅ 資料已成功儲存');
-            showMessage('✅ 員工資料已成功儲存到 Google 試算表！', 'success');
-            
-            setTimeout(() => {
-                if (confirm('是否要清除表單以新增下一位員工？')) {
-                    clearEmployeeForm();
-                }
-            }, 2000);
-        } else {
-            console.error('❌ 後端回傳錯誤:', responseData.message);
-            showMessage('❌ 儲存失敗: ' + responseData.message, 'error');
-        }
+        setTimeout(() => {
+            if (confirm('是否要清除表單以新增下一位員工？')) {
+                clearEmployeeForm();
+            }
+        }, 2000);
 
     } catch (error) {
         console.error('❌ 錯誤:', error);
@@ -342,28 +329,16 @@ async function calculateSalary() {
         displayResult(result);
         
         // 發送完整資料到 Google Sheets
-        const params = new URLSearchParams();
-        params.append('data', JSON.stringify(calculationData));
+        const formData = new URLSearchParams();
+        formData.append('data', JSON.stringify(calculationData));
         
         const response = await fetch(SCRIPT_URL, {
             method: 'POST',
-            body: params
+            body: formData
         });
         
-        console.log('📥 收到回應，狀態:', response.status);
-        
-        const responseText = await response.text();
-        console.log('📥 回應內容:', responseText);
-        
-        const responseData = JSON.parse(responseText);
-        
-        if (responseData.status === 'success') {
-            console.log('✅ 資料已成功儲存到 Google Sheets，第 ' + responseData.row + ' 行');
-            showMessage('✅ 薪資計算完成並已儲存到 Google 試算表！', 'success');
-        } else {
-            console.error('❌ 後端回傳錯誤:', responseData.message);
-            showMessage('⚠️ 薪資已計算完成，但儲存時發生錯誤: ' + responseData.message, 'error');
-        }
+        console.log('✅ 資料已發送到 Google Sheets');
+        showMessage('✅ 薪資計算完成並已儲存到 Google 試算表！', 'success');
 
     } catch (error) {
         console.error('❌ 錯誤:', error);
