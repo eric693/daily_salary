@@ -223,12 +223,12 @@ async function saveEmployeeData() {
     showMessage('正在儲存資料...', 'info');
 
     try {
+        const formData = new URLSearchParams();
+        formData.append('data', JSON.stringify(employeeData));
+        
         const response = await fetch(SCRIPT_URL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'text/plain',
-            },
-            body: JSON.stringify(employeeData)
+            body: formData
         });
 
         console.log('✅ 資料已送出');
@@ -329,12 +329,12 @@ async function calculateSalary() {
         displayResult(result);
         
         // 發送完整資料到 Google Sheets
+        const formData = new URLSearchParams();
+        formData.append('data', JSON.stringify(calculationData));
+        
         const response = await fetch(SCRIPT_URL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'text/plain',
-            },
-            body: JSON.stringify(calculationData)
+            body: formData
         });
         
         console.log('✅ 資料已發送到 Google Sheets');
