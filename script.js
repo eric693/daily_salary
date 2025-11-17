@@ -167,7 +167,8 @@ async function loadEmployeeData() {
                 <div style="margin-top: 10px; line-height: 1.8;">
                     <strong>基本薪資資訊：</strong><br>
                     薪資: <span style="color: #10b981; font-weight: bold;">NT$ ${Number(data.employee.dailyWage).toLocaleString()}</span> | 
-                    加班時薪: <span style="color: #10b981; font-weight: bold;">NT$ ${Number(data.employee.overtimeWage).toLocaleString()}</span> / 時
+                    加班時薪: <span style="color: #10b981; font-weight: bold;">NT$ ${Number(data.employee.overtimeWage).toLocaleString()}</span> / 時 |
+                    週六出工: <span style="color: #10b981; font-weight: bold;">NT$ ${Number(data.employee.saturdayWage || 0).toLocaleString()}</span>
                 </div>
             `;
             document.getElementById('employeeInfo').innerHTML = basicInfoHtml;
