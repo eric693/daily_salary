@@ -245,6 +245,7 @@ async function saveEmployeeData() {
         address: (document.getElementById('address').value || '').trim(),
         dailyWage: parseFloat(document.getElementById('dailyWage').value) || 0,
         overtimeWage: parseFloat(document.getElementById('overtimeWage').value) || 0,
+        saturdayWage: parseFloat(document.getElementById('saturdayWage').value) || 0,
         mealAllowance: parseFloat(document.getElementById('mealAllowance').value) || 0,
         attendanceAllowance: parseFloat(document.getElementById('attendanceAllowance').value) || 0,
         jobAllowance: parseFloat(document.getElementById('jobAllowance').value) || 0,
@@ -564,6 +565,7 @@ function clearEmployeeForm() {
     document.getElementById('address').value = '';
     document.getElementById('dailyWage').value = '1500';
     document.getElementById('overtimeWage').value = '200';
+    document.getElementById('saturdayWage').value = '0';
     document.getElementById('mealAllowance').value = '0';
     document.getElementById('attendanceAllowance').value = '0';
     document.getElementById('jobAllowance').value = '0';
