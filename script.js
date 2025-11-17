@@ -1,7 +1,5 @@
 // Google Apps Script Web App URL - 請替換成您部署後的 URL
-// const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzLOVQK5O0-HUv916FsBw-NRDQ50YyEbnQSNDnL8IpyGVi1vDHfSaDd8JW9HOA0_RNw/exec';
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyz1I_c7pJDKmm0m4OKa8fVLe4xjHcMHRW3MuOBj8zWBNlvBnDnY6P4YODd7-RFs7FL/exec';
-                    // https://script.google.com/macros/s/AKfycbyz1I_c7pJDKmm0m4OKa8fVLe4xjHcMHRW3MuOBj8zWBNlvBnDnY6P4YODd7-RFs7FL/exec
 
 // 全域變數：儲存當前選擇的員工資料
 let currentEmployeeData = null;
@@ -168,7 +166,7 @@ async function loadEmployeeData() {
             const basicInfoHtml = `
                 <div style="margin-top: 10px; line-height: 1.8;">
                     <strong>基本薪資資訊：</strong><br>
-                    薪資: <span style="color: #10b981; font-weight: bold;">NT$ ${Number(data.employee.dailyWage).toLocaleString()}</span> / 天 | 
+                    薪資: <span style="color: #10b981; font-weight: bold;">NT$ ${Number(data.employee.dailyWage).toLocaleString()}</span> | 
                     加班時薪: <span style="color: #10b981; font-weight: bold;">NT$ ${Number(data.employee.overtimeWage).toLocaleString()}</span> / 時
                 </div>
             `;
