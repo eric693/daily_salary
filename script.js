@@ -370,7 +370,7 @@ async function calculateSalary() {
         employeeName: String(currentEmployeeData.employeeName),
         calcMonth: String(calcMonth),
         workDays: Number(workDays),
-        saturdayPay: Number(parseFloat(document.getElementById('saturdayPay').value) || 0),  // ⭐ 新增：週六出工金額
+        saturdayPay: Number(currentEmployeeData.saturdayWage) || 0,  // ⭐ 直接使用員工設定的週六出工金額
         overtimeHours: Number(parseFloat(document.getElementById('overtimeHours').value) || 0),
         leaveDeduction: Number(parseFloat(document.getElementById('leaveDeduction').value) || 0),
         advancePayment: Number(parseFloat(document.getElementById('advancePayment').value) || 0),
@@ -381,7 +381,7 @@ async function calculateSalary() {
         // ⭐ 從 currentEmployeeData 取得完整的員工薪資、津貼和保險資料
         dailyWage: Number(currentEmployeeData.dailyWage) || 0,
         overtimeWage: Number(currentEmployeeData.overtimeWage) || 0,
-        saturdayWage: Number(currentEmployeeData.saturdayWage) || 0,  // ⭐ 新增：週六出工薪資設定
+        saturdayWage: Number(currentEmployeeData.saturdayWage) || 0,
         mealAllowance: Number(currentEmployeeData.mealAllowance) || 0,
         attendanceAllowance: Number(currentEmployeeData.attendanceAllowance) || 0,
         jobAllowance: Number(currentEmployeeData.jobAllowance) || 0,
@@ -401,7 +401,7 @@ async function calculateSalary() {
     console.log('   員工姓名:', calculationData.employeeName);
     console.log('   基本薪資:', calculationData.dailyWage);
     console.log('   加班時薪:', calculationData.overtimeWage);
-    console.log('   週六出工金額:', calculationData.saturdayPay);
+    console.log('   週六出工:', calculationData.saturdayPay);
     console.log('   伙食津貼:', calculationData.mealAllowance);
     console.log('   開車津貼:', calculationData.attendanceAllowance);
     console.log('   職務津貼:', calculationData.jobAllowance);
@@ -473,6 +473,7 @@ function calculateLocalSalary(data) {
     
     const dailyWage = currentEmployeeData.dailyWage;
     const overtimeWage = currentEmployeeData.overtimeWage;
+    const saturdayPay = currentEmployeeData.saturdayWage || 0;  // ⭐ 週六出工直接使用員工設定值
     const mealAllowance = currentEmployeeData.mealAllowance;
     const attendanceAllowance = currentEmployeeData.attendanceAllowance;
     const jobAllowance = currentEmployeeData.jobAllowance;
@@ -483,10 +484,11 @@ function calculateLocalSalary(data) {
     const supplementaryHealthInsurance = currentEmployeeData.supplementaryHealthInsurance;
 
     const basicSalary = dailyWage * data.workDays;
-    const saturdayPay = data.saturdayPay || 0;  // ⭐ 新增：週六出工金額
     const overtimePay = overtimeWage * data.overtimeHours;
     const mealTotal = mealAllowance * data.workDays;
-    const totalAllowance = mealTotal + attendanceAllowance + jobAllowance + rentAllowance + advanceAllowance;
+    
+    // ⭐ 週六出工加入津貼總額
+    const totalAllowance = saturdayPay + mealTotal + attendanceAllowance + jobAllowance + rentAllowance + advanceAllowance;
     
     const totalDeduction = 
         laborInsurance + 
@@ -498,12 +500,12 @@ function calculateLocalSalary(data) {
         data.otherDeduction +
         data.fineShare;
     
-    const netSalary = basicSalary + saturdayPay + overtimePay + totalAllowance - totalDeduction;  // ⭐ 加入週六出工
+    const netSalary = basicSalary + overtimePay + totalAllowance - totalDeduction;
 
     return {
         basicSalary: basicSalary,
-        saturdayPay: saturdayPay,  // ⭐ 新增
         overtimePay: overtimePay,
+        saturdayPay: saturdayPay,  // ⭐ 新增週六出工
         mealAllowance: mealTotal,
         attendanceAllowance: attendanceAllowance,
         jobAllowance: jobAllowance,
@@ -529,9 +531,10 @@ function calculateLocalSalary(data) {
 
 function displayResult(result) {
     document.getElementById('resultBasicSalary').textContent = `NT$ ${result.basicSalary.toLocaleString()}`;
-    document.getElementById('resultSaturdayPay').textContent = `NT$ ${result.saturdayPay.toLocaleString()}`;  // ⭐ 新增
     document.getElementById('resultOvertime').textContent = `NT$ ${result.overtimePay.toLocaleString()}`;
     
+    // ⭐ 週六出工顯示在加項津貼明細中
+    document.getElementById('resultSaturdayPay').textContent = `NT$ ${result.saturdayPay.toLocaleString()}`;
     document.getElementById('resultMealAllowance').textContent = `NT$ ${result.mealAllowance.toLocaleString()}`;
     document.getElementById('resultAttendanceAllowance').textContent = `NT$ ${result.attendanceAllowance.toLocaleString()}`;
     document.getElementById('resultJobAllowance').textContent = `NT$ ${result.jobAllowance.toLocaleString()}`;
